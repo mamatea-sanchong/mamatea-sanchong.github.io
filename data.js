@@ -118,7 +118,7 @@ window.SITE = {
 
   sugar: ['正常糖','八分糖','半糖','微糖','無糖'],
   ice:   ['正常冰','少冰','微冰','去冰','溫'],
-  toppings: [ {name:'愛玉',price:15}, {name:'布丁',price:15}, {name:'仙草凍',price:15}, {name:'蜂蜜凍',price:15},
+  toppings: [ {name:'愛玉',price:15}, {name:'仙草凍',price:15}, {name:'蜂蜜凍',price:15},
               {name:'寒天黑糖',price:15}, {name:'珍珠',price:10}, {name:'椰果',price:10} ],
   sizes: ['L'],
   // 菜單：price 依 sizes 順序填。hot = 招牌推薦，fixed = 固定甜度（不能調糖）
