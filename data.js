@@ -60,6 +60,12 @@ window.SITE = {
     { start: '2027-02-04', end: '2027-02-10' },   // 春節公休，2/11 恢復營業
   ],
 
+  // 付款方式：顯示在訂單、確認畫面和完成頁
+  payment: '取餐時付現金。',
+  paymentEn: 'Pay in cash when you pick up.',
+  paymentDelivery: '外送到達時付現金。',
+  paymentDeliveryEn: 'Pay in cash on delivery.',
+
   preorder: { cups: 10, cutoff: '18:00', rate: 0.9 },              // 前一天 18:00 前預購滿 10 杯打 9 折
 
   // 促銷活動：日期到了自動上架、過期自動下架。整筆優惠（第二杯半價、滿額折、優惠碼、預購 9 折）擇一，自動選最划算的
