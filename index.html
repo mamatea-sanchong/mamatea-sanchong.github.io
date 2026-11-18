@@ -154,6 +154,12 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 .demo{border:1px dashed var(--warn);color:var(--warn);font-size:13px;padding:8px 10px;margin-top:14px}
 .done{text-align:center;padding-block:48px 24px}
 .done .no{font-family:var(--serif);font-size:36px;font-weight:700;color:var(--leaf);letter-spacing:.06em}
+.status{border:1px solid var(--rule);background:var(--sheet);padding:12px 14px;margin-top:14px;text-align:left;font-size:15px}
+.status b{display:block;font-size:17px}
+.status small{display:block;color:var(--muted)}
+.status.ok b{color:var(--leaf)}
+.status.no b{color:var(--err)}
+#myOrders .status{margin:12px 0 0}
 .done pre{text-align:left;white-space:pre-wrap;background:var(--sheet);border:1px solid var(--rule);padding:14px;font:inherit;font-size:13px;margin-block:18px}
 @media (max-width:420px){ .hero{gap:14px;padding-top:24px} .vert{font-size:20px;padding-left:10px} .hero h1{font-size:34px} .top nav{gap:12px} }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
@@ -177,6 +183,7 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
     <div class="vert" id="vert" aria-hidden="true"></div>
   </header>
   <div id="promos"></div>
+  <div id="myOrders"></div>
 
   <section id="news">
     <div class="sec-h"><h2 data-en="News">公告</h2><span data-en="">News</span></div>
@@ -215,6 +222,7 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
         <div class="field"><label for="day" data-en="Date">日期</label><select id="day"></select></div>
         <div class="field"><label for="time" data-en="Time">時間</label><select id="time"></select></div>
       </div>
+      <div class="hint" id="dayHint" hidden style="margin:-4px 0 12px"></div>
       <div class="field"><label for="code" data-en="Promo code (optional)">優惠碼（選填）</label><input id="code" autocomplete="off" autocapitalize="characters"></div>
       <div class="field"><label for="note" data-en="Notes (optional)">備註（選填）</label><textarea id="note" rows="2" placeholder="例：分兩袋裝、到了打電話" data-en-ph="e.g. split into two bags, call on arrival"></textarea></div>
       <div class="field"><label for="bags" data-en="Plastic bags ($1 each, 0 if none)">塑膠袋（$1／個，不需要填 0）</label><div class="qty"><button type="button" id="bMinus" aria-label="減少">−</button><input id="bags" type="number" inputmode="numeric" min="0" max="99" value="0" aria-label="塑膠袋數量"><button type="button" id="bPlus" aria-label="增加">+</button></div></div>
@@ -564,7 +572,11 @@ function slotsFor(ds){
   var start = toMin(h[0]) + 30, end = toMin(h[1]);
   if (mode() === '團購') end = Math.min(end, toMin(S.groupLatest));
   var now = new Date();
-  if (ds === ymd(now)) start = Math.max(start, Math.ceil((now.getHours()*60 + now.getMinutes() + S.leadMinutes)/15)*15);
+  if (ds === ymd(now)){
+    var nowMin = now.getHours()*60 + now.getMinutes(), cut = (S.sameDayCutoff || {})[d.getDay()];
+    if (cut && nowMin > toMin(cut)) return [];   // 今天的線上訂購已截止
+    start = Math.max(start, Math.ceil((nowMin + S.leadMinutes)/15)*15);
+  }
   var out = []; for (var m = start; m <= end; m += 15) out.push(hm(m)); return out;
 }
 function renderDays(){
@@ -575,6 +587,12 @@ function renderDays(){
     o += '<option value="' + s + '">' + (EN() ? (i===0?'Today ':i===1?'Tomorrow ':'') + wd(d.getDay()) + ' ' + (d.getMonth()+1) + '/' + d.getDate() : dayLabelZh(s)) + '</option>';
   }
   $('day').innerHTML = o;
+  // 今天有營業、但已經過了可以下當天單的時間：提醒客人改訂明天以後
+  var td = ymd(b), th = S.hours[b.getDay()];
+  var late = th && !isClosed(td) && !slotsFor(td).length;
+  $('dayHint').hidden = !late;
+  if (late) $('dayHint').textContent = T('今天的線上訂購已經截止，可以預訂之後的日期；今天要的話請打 ' + S.phone + '。',
+    'Online orders for today are closed. You can order for a later day, or call ' + S.phone + ' for today.');
   if (keep && [].some.call($('day').options, function(x){ return x.value===keep; })) $('day').value = keep;
   renderTimes();
 }
@@ -676,6 +694,14 @@ function orderTextEn(o, no){
   return L.join('\n');
 }
 $('submitBtn').addEventListener('click', function(){
+  // 網頁開太久的話，原本選的時段可能已經來不及：重算一次
+  var kd = $('day').value, kt = $('time').value;
+  renderDays();
+  if (kd && ($('day').value !== kd || $('time').value !== kt)){
+    $('formErr').hidden = false;
+    $('formErr').textContent = T('你選的時間已經來不及了，已改成目前最早可以的時段，請再確認一次日期和時間。', 'The time you picked is no longer available. We\'ve switched to the earliest slot — please check the date and time again.');
+    $('formErr').scrollIntoView({block:'center'}); refresh(); return;
+  }
   var o = collect(), err = validate(o);
   $('formErr').hidden = !err; $('formErr').textContent = err;
   if (err){ $('formErr').scrollIntoView({block:'center'}); return; }
@@ -708,13 +734,78 @@ function showDone(o, r){
   var text = orderText(o, r.orderNo);
   $('bar').hidden = true;
   $('app').innerHTML = '<div class="done"><div class="lbl">' + T('訂單編號','Order number') + '</div><div class="no">' + esc(r.orderNo) + '</div>' +
-    (r.notified
+    (r.notified && !r.token
       ? '<p>' + T('店裡已經收到訂單。' + (o.mode==='自取' ? '請在 ' + esc(o.time) + ' 到店取餐。' : '會照時間送到。') + '要改單請打 ' + esc(S.phone) + '。',
           'We\'ve received your order. ' + (o.mode==='自取' ? 'Please pick it up at ' + esc(o.time) + '.' : 'We\'ll deliver it on time.') + ' To make changes, call ' + esc(S.phone) + '.') + '</p>'
+      : r.notified
+      ? '<div class="status" id="doneStatus">' + statusHtml('') + '</div>' +
+        '<p>' + T((o.mode==='自取' ? '取餐時間 ' + esc(o.time) + '。' : '外送時間 ' + esc(o.time) + '。') + '要改單請打 ' + esc(S.phone) + '。',
+          (o.mode==='自取' ? 'Pickup at ' : 'Delivery at ') + esc(o.time) + '. To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : '<p>' + T('還差一步：請按下面的按鈕，用 LINE 把訂單傳給店長，或直接打 ' + esc(S.phone) + '。', 'One more step: tap the button below to send your order to us on LINE, or call ' + esc(S.phone) + '.') + '</p>' +
         '<a class="btn line block" href="https://line.me/R/msg/text/?' + encodeURIComponent(text) + '" target="_blank" rel="noopener">' + T('用 LINE 傳訂單給店長','Send order on LINE') + '</a>') +
     '<pre>' + esc(orderText(o, r.orderNo, LANG)) + '</pre><button type="button" class="btn ghost block" onclick="location.reload()">' + T('回到首頁','Back to home') + '</button></div>';
   window.scrollTo(0,0);
+  if (r.token){
+    saveOrder({ no: r.orderNo, t: r.token, day: o.day, time: o.time, mode: o.mode });
+    if (r.notified) watchStatus(r.orderNo, r.token, function(st){ var el = $('doneStatus'); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = statusHtml(st.status, st.at); } });
+  }
+}
+
+/* ---------- 訂單狀態（已接單） ---------- */
+function nextStaffed(){
+  // 店裡現在有人嗎？沒有的話回傳下次有人的時間（例：明天 11:00）
+  var b = new Date(), nowMin = b.getHours()*60 + b.getMinutes();
+  for (var k = 0; k <= 8; k++){
+    var d = new Date(b.getFullYear(), b.getMonth(), b.getDate()+k), h = S.hours[d.getDay()];
+    if (!h || isClosed(ymd(d))) continue;
+    var until = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
+    if (k === 0 && nowMin >= toMin(h[0]) - 30 && nowMin < until) return '';
+    if (k > 0 || nowMin < toMin(h[0])) return (EN() ? (k===0?'today ':k===1?'tomorrow ':wd(d.getDay()) + ' ') : (k===0?'今天 ':k===1?'明天 ':(d.getMonth()+1) + '/' + d.getDate() + '（' + WD[d.getDay()] + '） ')) + h[0];
+  }
+  return EN() ? 'the next opening day' : '下次營業日';
+}
+function stClass(s){ return s === '已接單' ? 'ok' : s === '無法接單' ? 'no' : ''; }
+function statusHtml(s, at){
+  if (!s){
+    var n = nextStaffed();
+    return '<b>' + T('⏳ 等待店家確認', '⏳ Waiting for the shop to confirm') + '</b>' +
+      (n ? T('店員現在不在店裡，會在 ' + n + ' 開店後確認。', 'No one is at the shop right now — we\'ll confirm after we open ' + n + '.')
+         : T('店員按下「接單」後，這裡會自動顯示「已接單」。', 'This will change to "Accepted" once our staff confirm it.'));
+  }
+  if (s === '已接單') return '<b>' + T('✅ 店家已接單', '✅ Accepted by the shop') + '</b>' + (at ? T('確認時間 ', 'Confirmed ') + esc(at) : '');
+  if (s === '無法接單') return '<b>' + T('❌ 店家無法接這張單', '❌ The shop can\'t take this order') + '</b>' + T('請打 ' + esc(S.phone) + ' 和我們聯絡。', 'Please call us at ' + esc(S.phone) + '.');
+  return '<b>' + esc(s) + '</b>' + (at ? esc(at) : '');
+}
+function loadOrders(){ try { return JSON.parse(localStorage.getItem('myOrders') || '[]'); } catch(e){ return []; } }
+function saveOrder(x){
+  var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.no !== x.no && y.day >= td; });
+  list.unshift(x);
+  try { localStorage.setItem('myOrders', JSON.stringify(list.slice(0, 5))); } catch(e){}
+}
+function fetchStatus(no, t){
+  return fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no) + '&t=' + encodeURIComponent(t)).then(function(r){ return r.json(); });
+}
+function watchStatus(no, t, cb){
+  var stop = Date.now() + 3*3600e3;
+  var tick = function(){
+    if (Date.now() > stop) return;
+    if (document.hidden){ setTimeout(tick, 20000); return; }
+    fetchStatus(no, t).then(function(st){
+      if (st && st.ok) cb(st);
+      if (!(st && st.ok && st.status)) setTimeout(tick, 20000);
+    }).catch(function(){ setTimeout(tick, 30000); });
+  };
+  tick();
+}
+function renderMyOrders(){
+  if (!S.orderEndpoint) return;
+  var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.day >= td; });
+  $('myOrders').innerHTML = list.map(function(x, i){
+    return '<div class="status" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + esc(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('') + '</div>';
+  }).join('');
+  list.forEach(function(x, i){
+    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + esc(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at); } });
+  });
 }
 
 $('langBtn').addEventListener('click', function(){
@@ -722,5 +813,5 @@ $('langBtn').addEventListener('click', function(){
   try { localStorage.setItem('lang', LANG); } catch(e){}
   closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh();
 });
-applyStatic(); renderStatic(); renderDist(); renderMode(); refresh();
+applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderMyOrders();
 </script>
