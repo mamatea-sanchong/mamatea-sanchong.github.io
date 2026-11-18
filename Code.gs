@@ -134,16 +134,35 @@ function findRow_(sheet, no) {
 }
 
 /** 客人查訂單狀態：網站每隔一陣子來問一次 */
-/** 也可以用「訂單編號＋電話後 4 碼」查（客人自己在網站上輸入） */
+/**
+ * 客人查訂單：訂單編號、電話二擇一
+ * - 只給訂單編號 → 回傳那一張
+ * - 只給電話（完整號碼）→ 回傳這支電話最近 5 張訂單
+ * 只回傳狀態和取餐時間，不回傳姓名、地址
+ */
 function orderStatus(no, token, tel) {
   no = String(no || '').trim();
-  var sheet = getSheet_(), row = findRow_(sheet, no), notFound = { ok: false, error: '查不到這張訂單，請確認訂單編號和電話後 4 碼' };
-  if (!row || !(token || tel)) return notFound;
-  var v = sheet.getRange(row, 1, 1, COL_TOKEN).getDisplayValues()[0];
-  var last4 = String(tel || '').replace(/\D/g, '');
-  var telOk = last4.length === 4 && v[6].split('／').some(function (x) { return x.split(/#|分機|轉|ext/i)[0].replace(/\D/g, '').slice(-4) === last4; });
-  if (!(token && v[COL_TOKEN - 1] === String(token)) && !telOk) return notFound;
-  return { ok: true, orderNo: no, status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1], mode: v[2], day: v[3], time: v[4] };
+  var sheet = getSheet_(), notFound = { ok: false, error: '查不到訂單，請確認訂單編號或電話' };
+  var pick = function (v) {
+    return { orderNo: v[0], status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1], mode: v[2], day: v[3], time: v[4] };
+  };
+  if (no) {
+    var row = findRow_(sheet, no);
+    if (!row) return notFound;
+    var one = pick(sheet.getRange(row, 1, 1, COL_TOKEN).getDisplayValues()[0]);
+    return { ok: true, orderNo: one.orderNo, status: one.status, at: one.at, mode: one.mode, day: one.day, time: one.time, orders: [one] };
+  }
+  var digits = String(tel || '').split(/#|分機|轉|ext/i)[0].replace(/\D/g, '');
+  if (digits.length < 8) return { ok: false, error: '請輸入訂單編號，或下單時留的完整電話' };
+  var last = sheet.getLastRow();
+  if (last < 2) return notFound;
+  var first = Math.max(2, last - 499);
+  var rows = sheet.getRange(first, 1, last - first + 1, COL_TOKEN).getDisplayValues(), found = [];
+  for (var i = rows.length - 1; i >= 0 && found.length < 5; i--) {
+    var phones = String(rows[i][6]).split('／').map(function (x) { return x.split(/#|分機|轉|ext/i)[0].replace(/\D/g, ''); });
+    if (phones.indexOf(digits) >= 0) found.push(pick(rows[i]));
+  }
+  return found.length ? { ok: true, orders: found } : notFound;
 }
 
 /** 店員在 LINE 點按鈕後看到的頁面 */
