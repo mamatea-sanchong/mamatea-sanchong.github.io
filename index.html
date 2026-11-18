@@ -160,6 +160,9 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 .status.ok b{color:var(--leaf)}
 .status.no b{color:var(--err)}
 #myOrders .status{margin:12px 0 0}
+.ono{color:inherit;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.od-info{font-size:15px;margin:10px 0}
+.od-items{white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.7;background:var(--bg);border:1px solid var(--rule);padding:12px;border-radius:6px;margin:10px 0}
 .done pre{text-align:left;white-space:pre-wrap;background:var(--sheet);border:1px solid var(--rule);padding:14px;font:inherit;font-size:13px;margin-block:18px}
 @media (max-width:420px){ .hero{gap:14px;padding-top:24px} .vert{font-size:20px;padding-left:10px} .hero h1{font-size:34px} .top nav{gap:12px} }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
@@ -838,18 +841,46 @@ $('lkForm').addEventListener('submit', function(e){
     if (!st || !st.ok || !(st.orders || []).length) return err(T('查不到訂單，請確認訂單編號或電話；有問題請打 ' + esc(S.phone) + '。', 'No order found. Please check the number, or call ' + esc(S.phone) + '.'));
     out.innerHTML = st.orders.map(function(x){
       var day = String(x.day || '').replace(/^\d{4}[\/-]/, '');
-      return '<div class="status ' + stClass(x.status) + '"><small>' + T('訂單 ', 'Order ') + esc(x.orderNo) + (x.time ? '｜' + esc(x.mode || '') + ' ' + esc(day) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(x.status, x.at) + '</div>';
+      return '<div class="status ' + stClass(x.status) + '"><small>' + T('訂單 ', 'Order ') + onoLink(x.orderNo) + (x.time ? '｜' + esc(x.mode || '') + ' ' + esc(day) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(x.status, x.at) + '</div>';
     }).join('');
   }).catch(function(){ $('lkBtn').disabled = false; err(T('網路不穩，請再試一次。', 'Network problem — please try again.')); });
 });
+/* ---------- 訂單明細（點訂單編號打開） ---------- */
+function onoLink(no){ return '<a href="#" class="ono" data-no="' + esc(no) + '">' + esc(no) + '</a>'; }
+document.addEventListener('click', function(e){
+  var a = e.target.closest('.ono'); if (!a) return;
+  e.preventDefault(); openOrder(a.dataset.no);
+});
+function openOrder(no){
+  $('sheetBody').onchange = null;
+  $('sheetBody').innerHTML = '<div class="confirm"><h3 id="sheetTitle">' + T('訂單 ', 'Order ') + esc(no) + '</h3><div id="odBody"><p class="hint">' + T('讀取中…', 'Loading…') + '</p></div>' +
+    '<div style="display:flex;gap:10px;margin-top:16px"><button type="button" class="btn ghost" id="odClose" style="flex:1">' + T('關閉','Close') + '</button>' +
+    '<button type="button" class="btn leaf" id="odReload" style="flex:1">' + T('重新整理','Refresh') + '</button></div></div>';
+  $('mask').hidden = false; $('sheet').hidden = false;
+  $('odClose').onclick = closeSheet;
+  $('odReload').onclick = function(){ openOrder(no); };
+  if (!S.orderEndpoint){ $('odBody').innerHTML = '<p class="hint err">' + T('預覽模式無法查詢。', 'Not available in preview mode.') + '</p>'; return; }
+  fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no)).then(function(r){ return r.json(); }).then(function(x){
+    if (!$('odBody')) return;
+    if (!x || !x.ok){ $('odBody').innerHTML = '<p class="hint err">' + T('查不到這張訂單；有問題請打 ' + esc(S.phone) + '。', 'Order not found. Please call ' + esc(S.phone) + '.') + '</p>'; return; }
+    var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
+    var isPick = x.mode === '自取';
+    $('odBody').innerHTML = '<div class="status ' + stClass(x.status) + '">' + statusHtml(x.status, x.at) + '</div>' +
+      '<div class="od-info">' + T(esc(x.mode) + '｜' + esc(day) + ' ' + esc(x.time), (isPick ? 'Pickup' : 'Delivery') + ' | ' + esc(day) + ' ' + esc(x.time)) +
+      (!isPick && x.dist ? T('（' + esc(x.dist) + '）', '') : '') + '</div>' +
+      (x.items ? '<div class="od-items">' + esc(x.items) + '</div>' +
+        '<div class="od-info"><b>' + T('共 ' + esc(x.cups) + ' 杯，合計 $' + esc(x.total), esc(x.cups) + ' cups, total $' + esc(x.total)) + '</b></div>' : '') +
+      '<p class="hint">' + T('為了保護個資，這裡不顯示姓名、電話和地址。要改單請打 ' + esc(S.phone) + '。', 'Name, phone and address are hidden for privacy. To change your order, call ' + esc(S.phone) + '.') + '</p>';
+  }).catch(function(){ if ($('odBody')) $('odBody').innerHTML = '<p class="hint err">' + T('網路不穩，請按重新整理。', 'Network problem — tap Refresh.') + '</p>'; });
+}
 function renderMyOrders(){
   if (!S.orderEndpoint) return;
   var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.day >= td; });
   $('myOrders').innerHTML = list.map(function(x, i){
-    return '<div class="status" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + esc(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('') + '</div>';
+    return '<div class="status" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('') + '</div>';
   }).join('');
   list.forEach(function(x, i){
-    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + esc(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at); } });
+    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at); } });
   });
 }
 

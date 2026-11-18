@@ -138,13 +138,15 @@ function findRow_(sheet, no) {
  * 客人查訂單：訂單編號、電話二擇一
  * - 只給訂單編號 → 回傳那一張
  * - 只給電話（完整號碼）→ 回傳這支電話最近 5 張訂單
- * 只回傳狀態和取餐時間，不回傳姓名、地址
+ * 回傳狀態、取餐時間和品項明細，不回傳姓名、電話、地址、備註
  */
 function orderStatus(no, token, tel) {
   no = String(no || '').trim();
   var sheet = getSheet_(), notFound = { ok: false, error: '查不到訂單，請確認訂單編號或電話' };
   var pick = function (v) {
-    return { orderNo: v[0], status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1], mode: v[2], day: v[3], time: v[4] };
+    // 明細：品項、杯數、金額。姓名、電話、地址、備註不回傳（只用訂單編號也查得到，所以不放個人資料）
+    return { orderNo: v[0], status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1], mode: v[2], day: v[3], time: v[4],
+             dist: v[9], items: v[10], cups: v[11], total: v[12] };
   };
   if (no) {
     var row = findRow_(sheet, no);
