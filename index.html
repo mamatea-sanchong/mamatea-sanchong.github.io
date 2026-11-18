@@ -642,15 +642,31 @@ function collect(){
     promoEn: deal ? deal.titleEn : '', promoDetailEn: deal ? deal.detailEn : [],
     lang: LANG, note: $('note').value.trim(), website: $('website').value };
 }
+// 錯誤訊息顯示在出錯的欄位下面，並捲到那個欄位；客人一修改就消失
+var errAt = '';
+function showErr(msg, id){
+  var e = $('formErr'), f = id && $(id);
+  var box = f ? (f.closest('.row2') || f.closest('.field')) : null;
+  if (box) box.after(e); else $('demoNote').before(e);
+  e.hidden = !msg; e.textContent = msg || '';
+  if (!msg) return;
+  if (f){ f.scrollIntoView({block:'center'}); try { f.focus({preventScroll:true}); } catch(x){} }
+  else e.scrollIntoView({block:'center'});
+}
+$('slip').addEventListener('input', function(){ if (!$('formErr').hidden) showErr(''); });
 function validate(o){
+  errAt = '';
   if (!o.items.length) return T('還沒有選飲料。', 'Please add a drink first.');
-  if (!o.name) return T('請填姓名。', 'Please enter your name.');
+  if (!o.name){ errAt = 'name'; return T('請填姓名。', 'Please enter your name.'); }
+  errAt = 'tel';
   if (!o.mobile && !o.landline) return T('請留一支電話，手機或市話都可以。', 'Please leave a phone number (mobile or landline).');
   if (o.mobile && !/^09\d{8}$/.test(o.mobile.replace(/[\s\-]/g,''))) return T('手機號碼格式不對，請再確認一次（09 開頭共 10 碼）。', 'Mobile number looks wrong (Taiwan mobile: 10 digits starting with 09).');
-  if (o.landline && !/^0\d{7,9}$/.test(o.landline.split(/#|分機|轉|ext/i)[0].replace(/[\s\-()（）]/g,''))) return T('市話格式不對，請加上區碼，例：02-2xxx-xxxx #123。', 'Landline looks wrong — include the area code, e.g. 02-2xxx-xxxx #123.');
+  if (o.landline && (errAt = 'tel2') && !/^0\d{7,9}$/.test(o.landline.split(/#|分機|轉|ext/i)[0].replace(/[\s\-()（）]/g,''))) return T('市話格式不對，請加上區碼，例：02-2xxx-xxxx #123。', 'Landline looks wrong — include the area code, e.g. 02-2xxx-xxxx #123.');
+  errAt = 'day';
   o.tel = [o.mobile, o.landline].filter(Boolean).join(' ／ ');
   if (!o.day || !o.time) return T('這幾天沒有可預訂的時段，請直接打訂購專線。', 'No time slots available in the next few days — please call us.');
-  if (o.mode !== '自取' && !o.addr){ $('addr').focus(); return T('外送要填地址。', 'Please enter a delivery address.'); }
+  if (o.mode !== '自取' && !o.addr){ errAt = 'addr'; return T('外送要填地址。', 'Please enter a delivery address.'); }
+  errAt = '';
   return '';
 }
 function orderText(o, no, lang){
@@ -698,13 +714,13 @@ $('submitBtn').addEventListener('click', function(){
   var kd = $('day').value, kt = $('time').value;
   renderDays();
   if (kd && ($('day').value !== kd || $('time').value !== kt)){
-    $('formErr').hidden = false;
-    $('formErr').textContent = T('你選的時間已經來不及了，已改成目前最早可以的時段，請再確認一次日期和時間。', 'The time you picked is no longer available. We\'ve switched to the earliest slot — please check the date and time again.');
-    $('formErr').scrollIntoView({block:'center'}); refresh(); return;
+    refresh();
+    showErr(T('你選的時間已經來不及了，已改成目前最早可以的時段，請再確認一次日期和時間。', 'The time you picked is no longer available. We\'ve switched to the earliest slot — please check the date and time again.'), 'day');
+    return;
   }
   var o = collect(), err = validate(o);
-  $('formErr').hidden = !err; $('formErr').textContent = err;
-  if (err){ $('formErr').scrollIntoView({block:'center'}); return; }
+  showErr(err, err ? errAt : '');
+  if (err) return;
   $('sheetBody').innerHTML = '<div class="confirm"><h3 id="sheetTitle">' + T('請確認訂單','Please check your order') + '</h3>' +
     '<p class="hint" style="margin:0 0 10px">' + T('杯數、甜度冰塊、時間和電話都對了再送出。','Make sure the drinks, sweetness, ice, time and phone number are right.') + '</p><pre>' + esc(orderText(o, '', LANG)) + '</pre>' +
     '<div style="display:flex;gap:10px;margin-top:16px"><button type="button" class="btn ghost" id="cfBack" style="flex:1">' + T('返回修改','Go back') + '</button>' +
@@ -719,10 +735,8 @@ function sendOrder(o){
   var btn = $('submitBtn'); btn.disabled = true; btn.textContent = T('送出中…','Sending…');
   var fail = function(msg){
     btn.disabled = false; btn.textContent = T('送出訂單','Place order');
-    $('formErr').hidden = false;
-    $('formErr').textContent = T('訂單沒有送出：' + (msg || '網路不穩') + '。請再按一次，或打訂購專線 ' + S.phone + '。',
-      'Order not sent' + (msg ? ' (' + msg + ')' : '') + '. Please try again, or call ' + S.phone + '.');
-    $('formErr').scrollIntoView({block:'center'});
+    showErr(T('訂單沒有送出：' + (msg || '網路不穩') + '。請再按一次，或打訂購專線 ' + S.phone + '。',
+      'Order not sent' + (msg ? ' (' + msg + ')' : '') + '. Please try again, or call ' + S.phone + '.'));
   };
   if (!S.orderEndpoint){ setTimeout(function(){ showDone(o, { ok:true, orderNo:'預覽-001', notified:false }); }, 400); return; }
   fetch(S.orderEndpoint, { method: 'POST', body: JSON.stringify(o) })
