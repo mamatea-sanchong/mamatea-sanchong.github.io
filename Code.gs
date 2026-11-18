@@ -25,7 +25,7 @@ var COL_STATUS = 16, COL_TIME = 17, COL_TOKEN = 18;
 
 function doGet(e) {
   var q = (e && e.parameter) || {};
-  if (q.a === 'status') return json_(orderStatus(q.no, q.t));
+  if (q.a === 'status') return json_(orderStatus(q.no, q.t, q.tel));
   if (q.a === 'staff') return staffPage_(q.no, q.k);
   return json_({ ok: true, service: '神農店訂單' });
 }
@@ -134,12 +134,16 @@ function findRow_(sheet, no) {
 }
 
 /** 客人查訂單狀態：網站每隔一陣子來問一次 */
-function orderStatus(no, token) {
-  var sheet = getSheet_(), row = findRow_(sheet, no);
-  if (!row || !token) return { ok: false, error: '查不到這張訂單' };
+/** 也可以用「訂單編號＋電話後 4 碼」查（客人自己在網站上輸入） */
+function orderStatus(no, token, tel) {
+  no = String(no || '').trim();
+  var sheet = getSheet_(), row = findRow_(sheet, no), notFound = { ok: false, error: '查不到這張訂單，請確認訂單編號和電話後 4 碼' };
+  if (!row || !(token || tel)) return notFound;
   var v = sheet.getRange(row, 1, 1, COL_TOKEN).getDisplayValues()[0];
-  if (v[COL_TOKEN - 1] !== String(token)) return { ok: false, error: '查不到這張訂單' };
-  return { ok: true, orderNo: no, status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1] };
+  var last4 = String(tel || '').replace(/\D/g, '');
+  var telOk = last4.length === 4 && v[6].split('／').some(function (x) { return x.split(/#|分機|轉|ext/i)[0].replace(/\D/g, '').slice(-4) === last4; });
+  if (!(token && v[COL_TOKEN - 1] === String(token)) && !telOk) return notFound;
+  return { ok: true, orderNo: no, status: v[COL_STATUS - 1].trim(), at: v[COL_TIME - 1], mode: v[2], day: v[3], time: v[4] };
 }
 
 /** 店員在 LINE 點按鈕後看到的頁面 */
