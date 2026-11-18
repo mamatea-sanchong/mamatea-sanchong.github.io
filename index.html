@@ -775,7 +775,9 @@ function showDone(o, r){
     '<pre>' + esc(orderText(o, r.orderNo, LANG)) + '</pre><button type="button" class="btn ghost block" onclick="location.reload()">' + T('回到首頁','Back to home') + '</button></div>';
   window.scrollTo(0,0);
   if (r.token){
-    saveOrder({ no: r.orderNo, t: r.token, day: o.day, time: o.time, mode: o.mode });
+    saveOrder({ no: r.orderNo, t: r.token, day: o.day, time: o.time, mode: o.mode, total: o.total,
+      cups: o.items.reduce(function(n,l){ return n + l.qty; }, 0),
+      items: o.items.map(function(l){ return l.name + ' ×' + l.qty + '（' + l.opts + '）單價 $' + l.unit; }).join('\n') + (o.bags ? '\n塑膠袋 ×' + o.bags + '　$' + o.bagFee : '') });
     if (r.notified) watchStatus(r.orderNo, r.token, function(st){ var el = $('doneStatus'); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = statusHtml(st.status, st.at); } });
   }
 }
@@ -864,12 +866,14 @@ function openOrder(no){
     if (!$('odBody')) return;
     if (!x || !x.ok){ $('odBody').innerHTML = '<p class="hint err">' + T('查不到這張訂單；有問題請打 ' + esc(S.phone) + '。', 'Order not found. Please call ' + esc(S.phone) + '.') + '</p>'; return; }
     var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
-    var isPick = x.mode === '自取';
+    var isPick = x.mode === '自取', mine;
     $('odBody').innerHTML = '<div class="status ' + stClass(x.status) + '">' + statusHtml(x.status, x.at) + '</div>' +
       '<div class="od-info">' + T(esc(x.mode) + '｜' + esc(day) + ' ' + esc(x.time), (isPick ? 'Pickup' : 'Delivery') + ' | ' + esc(day) + ' ' + esc(x.time)) +
       (!isPick && x.dist ? T('（' + esc(x.dist) + '）', '') : '') + '</div>' +
+      ((!x.items && (mine = loadOrders().filter(function(y){ return y.no === no && y.items; })[0])) ? (x.items = mine.items, x.cups = mine.cups, x.total = mine.total, '') : '') +
       (x.items ? '<div class="od-items">' + esc(x.items) + '</div>' +
-        '<div class="od-info"><b>' + T('共 ' + esc(x.cups) + ' 杯，合計 $' + esc(x.total), esc(x.cups) + ' cups, total $' + esc(x.total)) + '</b></div>' : '') +
+        '<div class="od-info"><b>' + T('共 ' + esc(x.cups) + ' 杯，合計 $' + esc(x.total), esc(x.cups) + ' cups, total $' + esc(x.total)) + '</b></div>'
+        : '<p class="hint">' + T('品項明細暫時無法顯示（店家系統更新中），訂單已經存在店裡，不影響取餐。', 'Item details are temporarily unavailable while we update our system. Your order is safely recorded.') + '</p>') +
       '<p class="hint">' + T('為了保護個資，這裡不顯示姓名、電話和地址。要改單請打 ' + esc(S.phone) + '。', 'Name, phone and address are hidden for privacy. To change your order, call ' + esc(S.phone) + '.') + '</p>';
   }).catch(function(){ if ($('odBody')) $('odBody').innerHTML = '<p class="hint err">' + T('網路不穩，請按重新整理。', 'Network problem — tap Refresh.') + '</p>'; });
 }
