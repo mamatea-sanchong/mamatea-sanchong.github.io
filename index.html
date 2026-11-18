@@ -235,7 +235,8 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
   <section id="lookup">
     <div class="sec-h"><h2 data-en="Order status">查訂單</h2><span data-en="">Order status</span></div>
     <form id="lkForm" novalidate>
-      <div class="field"><label for="lkNo" data-en="Order number or phone number">訂單編號或電話（二擇一）</label><input id="lkNo" type="tel" inputmode="tel" autocomplete="off" placeholder="例：1118-003 或 0912345678" data-en-ph="e.g. 1118-003 or 0912345678"></div>
+      <div class="field"><label for="lkNo" data-en="Order number OR phone number (just one)">輸入訂單編號或電話（二擇一）</label><input id="lkNo" type="tel" inputmode="tel" autocomplete="off" placeholder="訂單編號 或 電話，填一個就好" data-en-ph="Order number or phone — just one"></div>
+      <p class="hint" style="margin:6px 0 0" data-en="Fill in just one: your order number (e.g. 1118-003) or the phone number you ordered with (e.g. 0912345678). Using your phone shows your 5 most recent orders.">只要填一個就好：訂單編號（例：1118-003），或下單時留的電話（例：0912345678）。用電話查會列出最近 5 張訂單。</p>
       <button type="submit" class="btn ghost block" style="margin-top:12px" id="lkBtn" data-en="Check status">查詢</button>
       <div id="lkOut" aria-live="polite"></div>
     </form>
