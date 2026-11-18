@@ -864,6 +864,7 @@ function openOrder(no){
   if (!S.orderEndpoint){ $('odBody').innerHTML = '<p class="hint err">' + T('預覽模式無法查詢。', 'Not available in preview mode.') + '</p>'; return; }
   fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no)).then(function(r){ return r.json(); }).then(function(x){
     if (!$('odBody')) return;
+    if (x && x.ok && x.orders && x.orders[0]) x = Object.assign({}, x, x.orders[0]);   // 明細在 orders[0] 裡
     if (!x || !x.ok){ $('odBody').innerHTML = '<p class="hint err">' + T('查不到這張訂單；有問題請打 ' + esc(S.phone) + '。', 'Order not found. Please call ' + esc(S.phone) + '.') + '</p>'; return; }
     var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
     var isPick = x.mode === '自取', mine;

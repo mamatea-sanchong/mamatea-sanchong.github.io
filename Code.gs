@@ -152,7 +152,9 @@ function orderStatus(no, token, tel) {
     var row = findRow_(sheet, no);
     if (!row) return notFound;
     var one = pick(sheet.getRange(row, 1, 1, COL_TOKEN).getDisplayValues()[0]);
-    return { ok: true, orderNo: one.orderNo, status: one.status, at: one.at, mode: one.mode, day: one.day, time: one.time, orders: [one] };
+    var res = { ok: true, orders: [one] };
+    for (var k in one) res[k] = one[k];
+    return res;
   }
   var digits = String(tel || '').split(/#|分機|轉|ext/i)[0].replace(/\D/g, '');
   if (digits.length < 8) return { ok: false, error: '請輸入訂單編號，或下單時留的完整電話' };
