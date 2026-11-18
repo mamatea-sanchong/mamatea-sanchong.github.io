@@ -12,15 +12,25 @@
 :root{
   --paper:#f3f2ec; --sheet:#fbfaf6; --ink:#1e221f; --muted:#6c716a; --rule:#d8d7cd;
   --leaf:#3e5b45; --leaf-soft:#e3e9e1; --on-leaf:#f7f7f2; --warn:#9a5b12; --err:#a8322a;
+  /* 功能色：取自茶與土的顏色，低彩度 */
+  --tea:#8a5a2b; --tea-soft:#f1e7da;        /* 公告：茶褐 */
+  --indigo:#3f5b74; --indigo-soft:#e2e8ec;  /* 外送：靛 */
+  --clay:#9b5034; --clay-soft:#f2e3dc;      /* 查訂單：赤土 */
+  --ash:#5f5a52; --ash-soft:#e9e6df;        /* 門市：墨灰 */
+  --err-soft:#f3dfdc;
   --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
   --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
-  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80; color-scheme:dark}}
+  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
+  --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
-  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80; color-scheme:dark}
+  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
+  --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;
@@ -154,11 +164,33 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 .demo{border:1px dashed var(--warn);color:var(--warn);font-size:13px;padding:8px 10px;margin-top:14px}
 .done{text-align:center;padding-block:48px 24px}
 .done .no{font-family:var(--serif);font-size:36px;font-weight:700;color:var(--leaf);letter-spacing:.06em}
-.status{border:1px solid var(--rule);background:var(--sheet);padding:12px 14px;margin-top:14px;text-align:left;font-size:15px}
+.status{border:1px solid var(--rule);border-left:4px solid var(--muted);background:var(--sheet);padding:12px 14px;margin-top:14px;text-align:left;font-size:15px}
 .status b{display:block;font-size:17px}
 .status small{display:block;color:var(--muted)}
-.status.ok b{color:var(--leaf)}
-.status.no b{color:var(--err)}
+.status.wait{border-color:var(--tea);background:var(--tea-soft)} .status.wait b{color:var(--tea)}
+.status.ok{border-color:var(--leaf);background:var(--leaf-soft)} .status.ok b{color:var(--leaf)}
+.status.no{border-color:var(--err);background:var(--err-soft)} .status.no b{color:var(--err)}
+
+/* 每個區塊一個功能色：標題前的小方印、英文副標、導覽列的小點 */
+#news{--ac:var(--tea);--ac-soft:var(--tea-soft)}
+#order{--ac:var(--leaf);--ac-soft:var(--leaf-soft)}
+#lookup{--ac:var(--clay);--ac-soft:var(--clay-soft)}
+#delivery{--ac:var(--indigo);--ac-soft:var(--indigo-soft)}
+#visit{--ac:var(--ash);--ac-soft:var(--ash-soft)}
+section .sec-h h2::before{content:"";display:inline-block;width:.42em;height:.42em;background:var(--ac,var(--leaf));margin-right:.5em;vertical-align:.18em;border-radius:1px}
+section .sec-h span{color:var(--ac,var(--muted))}
+.top nav a::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:.2em;background:var(--muted)}
+.top nav a[href="#news"]::before{background:var(--tea)}
+.top nav a[href="#order"]::before{background:var(--leaf)}
+.top nav a[href="#delivery"]::before{background:var(--indigo)}
+.top nav a[href="#visit"]::before{background:var(--ash)}
+.top nav a[href="#lookup"]::before{background:var(--clay)}
+.news time{color:var(--tea)!important}
+#lkForm{background:var(--clay-soft);border:1px solid var(--rule);border-top:3px solid var(--clay);padding:16px 16px 18px}
+#lkForm .btn{border-color:var(--clay);color:var(--clay);background:var(--sheet)}
+#delivery .rule b{color:var(--indigo)}
+#delivery .rules{border-left:3px solid var(--indigo);padding-left:14px}
+.slip{border-top:3px solid var(--leaf)!important}
 #myOrders .status{margin:12px 0 0}
 .ono{color:inherit;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .od-info{font-size:15px;margin:10px 0}
@@ -766,7 +798,7 @@ function showDone(o, r){
       ? '<p>' + T('店裡已經收到訂單。' + (o.mode==='自取' ? '請在 ' + esc(o.time) + ' 到店取餐。' : '會照時間送到。') + '要改單請打 ' + esc(S.phone) + '。',
           'We\'ve received your order. ' + (o.mode==='自取' ? 'Please pick it up at ' + esc(o.time) + '.' : 'We\'ll deliver it on time.') + ' To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : r.notified
-      ? '<div class="status" id="doneStatus">' + statusHtml('') + '</div>' +
+      ? '<div class="status wait" id="doneStatus">' + statusHtml('') + '</div>' +
         '<p>' + T((o.mode==='自取' ? '取餐時間 ' + esc(o.time) + '。' : '外送時間 ' + esc(o.time) + '。') + '要改單請打 ' + esc(S.phone) + '。',
           (o.mode==='自取' ? 'Pickup at ' : 'Delivery at ') + esc(o.time) + '. To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : '<p>' + T('還差一步：請按下面的按鈕，用 LINE 把訂單傳給店長，或直接打 ' + esc(S.phone) + '。', 'One more step: tap the button below to send your order to us on LINE, or call ' + esc(S.phone) + '.') + '</p>' +
@@ -795,7 +827,7 @@ function nextStaffed(){
   }
   return EN() ? 'the next opening day' : '下次營業日';
 }
-function stClass(s){ return s === '已接單' ? 'ok' : s === '無法接單' ? 'no' : ''; }
+function stClass(s){ return s === '已接單' ? 'ok' : s === '無法接單' ? 'no' : s ? '' : 'wait'; }
 function statusHtml(s, at){
   if (!s){
     var n = nextStaffed();
@@ -882,7 +914,7 @@ function renderMyOrders(){
   if (!S.orderEndpoint) return;
   var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.day >= td; });
   $('myOrders').innerHTML = list.map(function(x, i){
-    return '<div class="status" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('') + '</div>';
+    return '<div class="status wait" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('') + '</div>';
   }).join('');
   list.forEach(function(x, i){
     watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at); } });
