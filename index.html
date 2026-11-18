@@ -939,7 +939,7 @@ function showDone(o, r){
     saveOrder({ no: r.orderNo, t: r.token, day: o.day, time: o.time, mode: o.mode, total: o.total,
       cups: o.items.reduce(function(n,l){ return n + l.qty; }, 0),
       items: o.items.map(function(l){ return l.name + ' ×' + l.qty + '（' + l.opts + '）單價 $' + l.unit; }).join('\n') + (o.bags ? '\n塑膠袋 ×' + o.bags + '　$' + o.bagFee : '') });
-    if (r.notified) watchStatus(r.orderNo, r.token, function(st){ var el = $('doneStatus'); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = statusHtml(st.status, st.at, { mode: o.mode, reason: st.reason, no: r.orderNo, t: r.token }); } });
+    if (r.notified) watchStatus(r.orderNo, r.token, function(st){ var el = $('doneStatus'); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = statusHtml(st.status, st.at, { mode: o.mode, reason: st.reason, no: r.orderNo, t: r.token, canCancel: 'reason' in st }); } });
   }
 }
 
@@ -1024,7 +1024,7 @@ function stepsHtml(s, mode){
   var names = [T('已送出','Sent'), T('已接單','Accepted'), mode === '外送' ? T('已出發','On the way') : T('可取餐','Ready')];
   return '<small style="margin-top:6px">' + names.map(function(n, i){ return (i <= k ? '●' : '○') + ' ' + n; }).join('　—　') + '</small>';
 }
-// x：{ mode, reason, no, t }（t＝下單時拿到的查詢碼，有它才能自己取消）
+// x：{ mode, reason, no, t, canCancel }（t＝下單時拿到的查詢碼；canCancel＝後端是新版、支援取消）
 function statusHtml(s, at, x){
   x = x || {};
   var h;
@@ -1033,7 +1033,7 @@ function statusHtml(s, at, x){
     h = '<b>' + T('⏳ 等待店家確認', '⏳ Waiting for the shop to confirm') + '</b>' +
       (n ? T('店員現在不在店裡，會在 ' + n + ' 開店後確認。', 'No one is at the shop right now — we\'ll confirm after we open ' + n + '.')
          : T('店家確認後，這裡會自動變成「已接單」。', 'This will change to "Accepted" once the shop confirms.'));
-    if (x.no && x.t) h += '<small><button type="button" class="cxl" data-no="' + esc(x.no) + '" data-t="' + esc(x.t) + '" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">' + T('店家接單前可以取消訂單','Cancel this order (before the shop accepts)') + '</button></small>';
+    if (x.no && x.t && x.canCancel) h += '<small><button type="button" class="cxl" data-no="' + esc(x.no) + '" data-t="' + esc(x.t) + '" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">' + T('店家接單前可以取消訂單','Cancel this order (before the shop accepts)') + '</button></small>';
   }
   else if (s === '已接單') h = '<b>' + T('✅ 店家已接單', '✅ Accepted by the shop') + '</b>' + (at ? T('確認時間 ', 'Confirmed ') + esc(at) : '');
   else if (s === '已完成') h = '<b>' + (x.mode === '外送' ? T('🛵 飲料已出發外送', '🛵 Your order is on the way') : T('🧋 飲料做好了，可以來取囉', '🧋 Your drinks are ready for pickup')) + '</b>' + (at ? esc(at) : '');
@@ -1131,7 +1131,7 @@ function renderMyOrders(){
     return '<div class="status wait" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('', '', { mode: x.mode, no: x.no, t: x.t }) + '</div>';
   }).join('');
   list.forEach(function(x, i){
-    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at, { mode: x.mode, reason: st.reason, no: x.no, t: x.t }); } });
+    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at, { mode: x.mode, reason: st.reason, no: x.no, t: x.t, canCancel: 'reason' in st }); } });
   });
 }
 
