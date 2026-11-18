@@ -20,6 +20,10 @@ window.SITE = {
   lineUrl: '',           // LINE 加好友連結（選填，例：https://line.me/ti/p/xxxx）
 
   // 訂單送到哪裡：Google Apps Script 部署後的網址（…/exec）。空白＝預覽模式，訂單不會送出
+  // 暫停線上訂購：填開放日期，這天以前網站只能看菜單、查訂單，不能下單；到了這天自動開放。
+  // 要馬上開放就改成 ''；要延後就改日期。
+  orderingOpensOn: '2026-11-21',
+
   orderEndpoint: 'https://script.google.com/macros/s/AKfycbzk2CTeRzCQkpwKTYddIx7swi7cGdcXuW6FDVyTdTAJFWwbbKmS1uHj9znbSvXQ5G1c/exec',
 
   // 公告：最新的放最上面，最多顯示 4 則
@@ -39,7 +43,7 @@ window.SITE = {
       en: 'Anniversary, Dec 21–Feb 3: pure tea BOGO (Dec 21–Jan 2), fresh milk tea 2nd cup half price (Jan 4–16), pre-order 10+ cups 15% off (Jan 18–29), pure tea BOGO again (Jan 30–Feb 3).' },
     { date: '2026-11-21', until: '2026-12-19', text: '週一、四第二杯半價（11/23–12/19）：同一筆訂單每兩杯，較便宜的那杯半價。',
       en: 'Mon & Thu, 2nd cup half price (Nov 23–Dec 19): in each order, every second (cheaper) cup is half price.' },
-    { date: '2026-11-12', text: '開放線上訂購：自取、外送都能在網站上下單。',
+    { date: '2026-11-21', text: '開放線上訂購：自取、外送都能在網站上下單。',
       en: 'Online ordering is open: order here for pickup or delivery.' },
     { date: '2026-11-12', text: '前一天 18:00 前預購滿 10 杯，整筆打 9 折。',
       en: 'Order 10+ cups by 6 PM the day before and get 10% off the whole order.' },

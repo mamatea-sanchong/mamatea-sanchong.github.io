@@ -198,6 +198,7 @@ section .sec-h span{color:var(--ac,var(--muted))}
 .od-info{font-size:15px;margin:10px 0}
 .od-items{white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.7;background:var(--bg);border:1px solid var(--rule);padding:12px;border-radius:6px;margin:10px 0}
 .done pre{text-align:left;white-space:pre-wrap;background:var(--sheet);border:1px solid var(--rule);padding:14px;font:inherit;font-size:13px;margin-block:18px}
+body.paused .item .add{visibility:hidden}
 @media (max-width:420px){ .hero{gap:14px;padding-top:24px} .vert{font-size:20px;padding-left:10px} .hero h1{font-size:34px} .top nav{gap:12px} }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
@@ -219,6 +220,7 @@ section .sec-h span{color:var(--ac,var(--muted))}
     </div>
     <div class="vert" id="vert" aria-hidden="true"></div>
   </header>
+  <div id="pauseNote" class="promo" style="display:none;border-color:var(--tea);background:var(--tea-soft)"></div>
   <div id="promos"></div>
   <div id="myOrders"></div>
 
@@ -439,6 +441,7 @@ $('cats').addEventListener('click', function(e){
 });
 $('menu').addEventListener('click', function(e){
   var row = e.target.closest('.item'); if (!row) return;
+  if (orderingPaused()){ alert(pauseText()); return; }
   openSheet(S.menu[row.dataset.c].items[row.dataset.i]);
 });
 
@@ -666,7 +669,7 @@ $('code').addEventListener('input', refresh);
 function refresh(){
   renderMenu(); renderLines();
   var t = listSubtotal(), min = minOrder();  // 外送低消一律用原價（任何優惠前）的飲料金額算
-  $('bar').hidden = !cart.length;
+  $('bar').hidden = !cart.length || orderingPaused();
   $('tot').textContent = money(total());
   $('meter').hidden = !min;
   $('meterFill').style.width = min ? Math.min(100, t/min*100) + '%' : '0';
@@ -923,10 +926,26 @@ function renderMyOrders(){
   });
 }
 
+// 暫停線上訂購（data.js 的 orderingOpensOn）：可以看菜單、查訂單，不能下單
+function orderingPaused(){ return !!(S.orderingOpensOn && ymd(new Date()) < S.orderingOpensOn); }
+function pauseText(){
+  var d = new Date(S.orderingOpensOn + 'T00:00:00');
+  return T('線上訂購 ' + (d.getMonth()+1) + '/' + d.getDate() + '（' + WD[d.getDay()] + '）開放。現在要訂飲料，請打 ' + S.phone + ' 或直接到店。',
+    'Online ordering opens ' + WDE[d.getDay()] + ' ' + (d.getMonth()+1) + '/' + d.getDate() + '. Until then, please call ' + S.phone + ' or visit the shop.');
+}
+function renderPause(){
+  var on = orderingPaused();
+  $('pauseNote').style.display = on ? '' : 'none';
+  if (on) $('pauseNote').innerHTML = '<b style="color:var(--tea)">' + T('線上訂購即將開放', 'Online ordering opens soon') + '</b>' + esc(pauseText());
+  $('slip').hidden = on;
+  document.querySelectorAll('.cta .btn.leaf').forEach(function(a){ a.textContent = on ? T('看菜單', 'View menu') : T('線上訂購', 'Order online'); });
+  document.body.classList.toggle('paused', on);
+  if (on){ cart = []; $('bar').hidden = true; }
+}
 $('langBtn').addEventListener('click', function(){
   LANG = EN() ? 'zh' : 'en';
   try { localStorage.setItem('lang', LANG); } catch(e){}
-  closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh();
+  closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderPause();
 });
-applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderMyOrders();
+applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderPause(); renderMyOrders();
 </script>
