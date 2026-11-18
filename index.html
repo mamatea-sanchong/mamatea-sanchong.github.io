@@ -6,7 +6,7 @@
 <meta name="description" content="紅茶媽媽三重神農店，五谷王北街上的原葉茶飲。線上訂購、自取、外送。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@400;600;700&display=swap">
 <style>
 /* Layout: one quiet column like a tea-house leaflet; a vertical-set hero line is the single bold move, everything else is rules and whitespace */
 :root{
@@ -18,7 +18,8 @@
   --clay:#9b5034; --clay-soft:#f2e3dc;      /* 查訂單：赤土 */
   --ash:#5f5a52; --ash-soft:#e9e6df;        /* 門市：墨灰 */
   --err-soft:#f3dfdc;
-  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  /* 全站用楷體（霞鶩文楷，手機電腦都會載入）；只有填寫欄位用黑體 */
+  --serif:"LXGW WenKai TC","BiauKai","DFKai-SB","標楷體","Kaiti TC",KaiTi,"Noto Serif TC",serif;
   --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -33,13 +34,14 @@
   --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.75;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 110px}
 .wrap{max-width:640px;margin:0 auto}
 a{color:inherit}
 .serif{font-family:var(--serif)}
 .num{font-family:var(--serif);font-variant-numeric:tabular-nums}
 button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-family:var(--sans)}   /* 填寫欄位用黑體，電話、地址比較好認 */
 :focus-visible{outline:2px solid var(--leaf);outline-offset:3px}
 
 /* top bar */
