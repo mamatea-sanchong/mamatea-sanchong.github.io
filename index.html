@@ -168,7 +168,7 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 <div class="wrap" id="app">
   <div class="top">
     <span class="open" id="openState"><i></i><span></span></span>
-    <div class="top-r"><nav aria-label="頁面導覽"><a href="#news" data-en="News">公告</a><a href="#order" data-en="Menu">菜單訂購</a><a href="#delivery" data-en="Delivery">外送</a><a href="#visit" data-en="Store">門市資訊</a></nav><button type="button" class="lang" id="langBtn" aria-label="Switch language">EN</button></div>
+    <div class="top-r"><nav aria-label="頁面導覽"><a href="#news" data-en="News">公告</a><a href="#order" data-en="Menu">菜單訂購</a><a href="#delivery" data-en="Delivery">外送</a><a href="#visit" data-en="Store">門市資訊</a><a href="#lookup" data-en="My order">查訂單</a></nav><button type="button" class="lang" id="langBtn" aria-label="Switch language">EN</button></div>
   </div>
 
   <header class="hero">
@@ -229,6 +229,18 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
       <input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="hint err" id="formErr" hidden></div>
       <div class="demo" id="demoNote" hidden data-en="Preview mode: orders will not be sent to the shop.">目前是預覽模式，送出的訂單不會傳到店裡。</div>
+    </form>
+  </section>
+
+  <section id="lookup">
+    <div class="sec-h"><h2 data-en="Order status">查訂單</h2><span data-en="">Order status</span></div>
+    <form id="lkForm" novalidate>
+      <div class="row2">
+        <div class="field"><label for="lkNo" data-en="Order number">訂單編號</label><input id="lkNo" autocomplete="off" inputmode="numeric" placeholder="例：1118-003" data-en-ph="e.g. 1118-003"></div>
+        <div class="field"><label for="lkTel" data-en="Last 4 digits of phone">電話後 4 碼</label><input id="lkTel" type="tel" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="例：5678" data-en-ph="e.g. 5678"></div>
+      </div>
+      <button type="submit" class="btn ghost block" style="margin-top:12px" id="lkBtn" data-en="Check status">查詢</button>
+      <div id="lkOut" aria-live="polite"></div>
     </form>
   </section>
 
@@ -758,6 +770,7 @@ function showDone(o, r){
           (o.mode==='自取' ? 'Pickup at ' : 'Delivery at ') + esc(o.time) + '. To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : '<p>' + T('還差一步：請按下面的按鈕，用 LINE 把訂單傳給店長，或直接打 ' + esc(S.phone) + '。', 'One more step: tap the button below to send your order to us on LINE, or call ' + esc(S.phone) + '.') + '</p>' +
         '<a class="btn line block" href="https://line.me/R/msg/text/?' + encodeURIComponent(text) + '" target="_blank" rel="noopener">' + T('用 LINE 傳訂單給店長','Send order on LINE') + '</a>') +
+    (r.token ? '<p class="hint">' + T('請記下訂單編號。之後可以在網站「查訂單」輸入編號和電話後 4 碼查詢狀態。', 'Keep your order number. You can check its status anytime under "Order status" with the number and the last 4 digits of your phone.') + '</p>' : '') +
     '<pre>' + esc(orderText(o, r.orderNo, LANG)) + '</pre><button type="button" class="btn ghost block" onclick="location.reload()">' + T('回到首頁','Back to home') + '</button></div>';
   window.scrollTo(0,0);
   if (r.token){
@@ -812,6 +825,22 @@ function watchStatus(no, t, cb){
   };
   tick();
 }
+$('lkForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var no = $('lkNo').value.trim().replace(/[^\d\-]/g, ''), tel = $('lkTel').value.replace(/\D/g, '');
+  if (/^\d{7}$/.test(no)) no = no.slice(0,4) + '-' + no.slice(4);   // 打成 1118003 也可以
+  var out = $('lkOut');
+  if (!/^\d{4}-\d{3}$/.test(no) || tel.length !== 4){
+    out.innerHTML = '<p class="hint err">' + T('請輸入訂單編號（例：1118-003）和電話後 4 碼。', 'Enter your order number (e.g. 1118-003) and the last 4 digits of your phone.') + '</p>'; return;
+  }
+  if (!S.orderEndpoint){ out.innerHTML = '<p class="hint err">' + T('預覽模式無法查詢。', 'Not available in preview mode.') + '</p>'; return; }
+  $('lkBtn').disabled = true; out.innerHTML = '<p class="hint">' + T('查詢中…', 'Checking…') + '</p>';
+  fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no) + '&tel=' + tel).then(function(r){ return r.json(); }).then(function(st){
+    $('lkBtn').disabled = false;
+    if (!st || !st.ok){ out.innerHTML = '<p class="hint err">' + T('查不到這張訂單，請確認訂單編號和電話後 4 碼；有問題請打 ' + esc(S.phone) + '。', 'Order not found. Please check the number and phone digits, or call ' + esc(S.phone) + '.') + '</p>'; return; }
+    out.innerHTML = '<div class="status ' + stClass(st.status) + '"><small>' + T('訂單 ', 'Order ') + esc(no) + (st.time ? '｜' + esc(st.mode || '') + ' ' + esc(String(st.day || '').slice(5)) + ' ' + esc(st.time) : '') + '</small>' + statusHtml(st.status, st.at) + '</div>';
+  }).catch(function(){ $('lkBtn').disabled = false; out.innerHTML = '<p class="hint err">' + T('網路不穩，請再試一次。', 'Network problem — please try again.') + '</p>'; });
+});
 function renderMyOrders(){
   if (!S.orderEndpoint) return;
   var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.day >= td; });
