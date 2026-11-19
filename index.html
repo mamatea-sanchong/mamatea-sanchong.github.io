@@ -404,6 +404,8 @@ function optsT(o){
   if (!EN()) return o;
   return o.split('／').map(function(x){ return x.charAt(0)==='加' && S.en[x.slice(1)] ? '+ ' + S.en[x.slice(1)] : N(x); }).join(' / ');
 }
+function delivTimeZh(){ return S.deliveryLatestNote ? S.deliveryLatestNote.replace('來電安排', '來電安排（' + S.phone + '）') : ''; }
+function delivTimeEn(){ return S.deliveryLatestNoteEn ? ' ' + S.deliveryLatestNoteEn.replace('call ahead', 'call ahead (' + S.phone + ')') : ''; }
 function applyStatic(){
   if (S.deliveryOff){
     // 外送暫停：選單拿掉「外送」、取餐方式只剩自取就不顯示選項、外送區塊改叫「訂購須知」
@@ -480,8 +482,8 @@ function renderStatic(){
   var dl = S.delivery, p = S.preorder;
   $('rules').innerHTML = [
     S.deliveryOff ? [T('外送','Delivery'), T('外送暫停中，網站目前只接受到店自取。大量訂購請打 ' + S.phone + ' 討論。', 'Delivery is paused for now — online orders are pickup only. For large orders, please call ' + S.phone + '.')] :
-    [T('外送','Delivery'), T(dl.baseKm + ' 公里內滿 $' + dl.baseMin + ' 外送，每多 1 公里低消加 $' + dl.stepPerKm + '（以飲料原價計算）。超過 ' + dl.maxKm + ' 公里，建議來電確認（' + S.phone + '）。',
-      'Minimum $' + dl.baseMin + ' within ' + dl.baseKm + ' km, +$' + dl.stepPerKm + ' for each extra km (counted at full price). Over ' + dl.maxKm + ' km, please call us (' + S.phone + ').')],
+    [T('外送','Delivery'), T(dl.baseKm + ' 公里內滿 $' + dl.baseMin + ' 外送，每多 1 公里低消加 $' + dl.stepPerKm + '（以飲料原價計算）。超過 ' + dl.maxKm + ' 公里，建議來電確認（' + S.phone + '）。' + delivTimeZh(),
+      'Minimum $' + dl.baseMin + ' within ' + dl.baseKm + ' km, +$' + dl.stepPerKm + ' for each extra km (counted at full price). Over ' + dl.maxKm + ' km, please call us (' + S.phone + ').' + delivTimeEn())],
     [T('預購','Pre-order'), T('前一天 ' + p.cutoff + ' 前預購滿 ' + p.cups + ' 杯，整筆打 ' + zhZhe(p.rate) + '，網站下單自動計算。',
       'Order ' + p.cups + '+ cups by ' + p.cutoff + ' the day before and get ' + enOff(p.rate) + ' — applied automatically.')],
     [T('自取','Pickup'), T('不限杯數，選好時間到店直接取。', 'No minimum. Pick a time and collect at the shop.')],
@@ -769,6 +771,8 @@ function slotsFor(ds){
   // 最晚的取餐／外送時間：店員在店裡到幾點（staffUntil，例：週一、四 14:30），沒寫就是打烊時間
   var start = toMin(h[0]) + 30, end = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
   if (mode() === '團購') end = Math.min(end, toMin(S.groupLatest));
+  var dLate = (S.deliveryLatest || {})[d.getDay()];
+  if (mode() === '外送' && dLate) end = Math.min(end, toMin(dLate));   // 週一到五外送只到 14:30
   var now = new Date();
   if (ds === ymd(now)){
     var nowMin = now.getHours()*60 + now.getMinutes(), cut = (S.sameDayCutoff || {})[d.getDay()];
@@ -808,8 +812,8 @@ function renderMode(){
   $('deliveryFields').hidden = m === '自取';
   $('companyField').hidden = m !== '外送';
   $('modeHint').textContent = m === '自取' ? (S.deliveryOff ? T('目前只接受到店自取（外送暫停中），不限杯數。', 'Pickup only for now (delivery is paused). No minimum.') : T('到店自取不限杯數。','Pickup has no minimum.'))
-    : T(d.baseKm + ' 公里內滿 $' + d.baseMin + '，每多 1 公里低消加 $' + d.stepPerKm + '（以原價計算）；超過 ' + d.maxKm + ' 公里，建議來電確認。',
-        'Minimum $' + d.baseMin + ' within ' + d.baseKm + ' km, +$' + d.stepPerKm + ' per extra km (at full price). Over ' + d.maxKm + ' km, please call us.');
+    : T(d.baseKm + ' 公里內滿 $' + d.baseMin + '，每多 1 公里低消加 $' + d.stepPerKm + '（以原價計算）；超過 ' + d.maxKm + ' 公里，建議來電確認。' + delivTimeZh(),
+        'Minimum $' + d.baseMin + ' within ' + d.baseKm + ' km, +$' + d.stepPerKm + ' per extra km (at full price). Over ' + d.maxKm + ' km, please call us.' + delivTimeEn());
   $('payHint').textContent = T('付款：', 'Payment: ') + payText(m);
   renderDays();
 }
