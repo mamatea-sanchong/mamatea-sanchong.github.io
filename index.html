@@ -268,6 +268,10 @@ section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-alig
 :root:not([data-theme="dark"])[data-pal] [data-k="2"]{--cc:color-mix(in srgb,var(--amber) 55%,#fff)} :root:not([data-theme="dark"])[data-pal] [data-k="3"]{--cc:color-mix(in srgb,var(--amber) 40%,#fff)}
 :root:not([data-theme="dark"])[data-pal] [data-k="4"]{--cc:color-mix(in srgb,var(--amber) 28%,#fff)}
 }
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));z-index:9;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);
+  font-family:var(--serif);font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:999px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);
+  opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.totop.on{opacity:.95;transform:none;pointer-events:auto}
 </style>
 
 <div class="wrap" id="app">
@@ -365,6 +369,7 @@ section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-alig
   <footer id="foot"></footer>
 </div>
 
+<button type="button" class="totop" id="toTop" aria-label="回到頂部" data-en="↑ Top">↑ 回頂部</button>
 <div class="bar" id="bar" hidden>
   <div class="bar-in">
     <div class="sum">
@@ -1260,4 +1265,18 @@ $('langBtn').addEventListener('click', function(){
   closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderPause();
 });
 applyStatic(); renderStatic(); renderDist(); loadMe(); loadCart(); renderMode(); renderDistHelp(); refresh(); renderPause(); renderMyOrders();
+
+/* ---------- 回頂部：往下捲一段後出現，位置避開底部訂單列 ---------- */
+(function(){
+  var b = $('toTop');
+  function upd(){
+    var bar = $('bar'), h = bar.hidden ? 0 : bar.offsetHeight;
+    b.style.bottom = 'calc(' + (h + 12) + 'px + ' + (h ? '0px' : 'env(safe-area-inset-bottom,0px)') + ')';
+    b.classList.toggle('on', window.scrollY > 700);
+  }
+  window.addEventListener('scroll', upd, { passive: true });
+  window.addEventListener('resize', upd);
+  b.onclick = function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} };
+  upd();
+})();
 </script>
