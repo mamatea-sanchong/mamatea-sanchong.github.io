@@ -18,6 +18,9 @@
   --clay:#9b5034; --clay-soft:#f2e3dc;      /* 查訂單：赤土 */
   --ash:#5f5a52; --ash-soft:#e9e6df;        /* 門市：墨灰 */
   --err-soft:#f3dfdc;
+  --amber:#a4522c; --amber-ink:#fbf4ec;      /* 紅茶琥珀：只用在加入／送出和價格 */
+  --band:#efe9dd;                            /* 區塊交替底色：淡茶 */
+  --c0:#8a5a2b; --c1:#6f8a5a; --c2:#c9a77c; --c3:#a2714a; --c4:#d9c7a5;  /* 分類色點：原茶／特調／鮮奶茶／奶茶／奶蓋 */
   /* 全站用楷體（霞鶩文楷，手機電腦都會載入）；只有填寫欄位用黑體 */
   --serif:"LXGW WenKai TC","BiauKai","DFKai-SB","標楷體","Kaiti TC",KaiTi,"Noto Serif TC",serif;
   --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
@@ -26,11 +29,13 @@
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
   --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
   --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --amber:#e09a6c; --amber-ink:#1c1410; --band:#1a1c19; --c0:#d6ad7f; --c1:#a9c191; --c2:#e1c9a3; --c3:#cf9f78; --c4:#ece0c8;
   --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
   --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
   --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --amber:#e09a6c; --amber-ink:#1c1410; --band:#1a1c19; --c0:#d6ad7f; --c1:#a9c191; --c2:#e1c9a3; --c3:#cf9f78; --c4:#ece0c8;
   --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -229,6 +234,40 @@ body.paused .item .add{visibility:hidden}
 body.paused .toast{white-space:normal;text-align:center}
 @media (max-width:420px){ .hero{gap:14px;padding-top:24px} .vert{font-size:20px;padding-left:10px} .hero h1{font-size:34px} .top nav{gap:12px} }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ---------- 配色：一個暖色重點＋區塊交替底色＋紙張紋理＋茶葉小圖＋分類色點 ---------- */
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .22 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E")}
+#order,#delivery{background:var(--band);box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax);border-bottom-color:transparent}
+#order .cats{background:var(--band)}
+#order .slip{background:var(--sheet)}
+section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-align:-.04em;margin-right:.45em;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 20C4 11 10 4 20 4c0 10-7 16-16 16zm0 0c3-4 7-8 11-11' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 20C4 11 10 4 20 4c0 10-7 16-16 16zm0 0c3-4 7-8 11-11' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+#lookup .sec-h h2::before,#visit .sec-h h2::before{
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9h12v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9h12v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+#submitBtn,#sheetAdd,#cfGo{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.item .pr,.bar .tot,.li .p,#sheetAdd{font-variant-numeric:tabular-nums}
+.item .pr,.bar .tot{color:var(--amber)}
+.item .add{border-color:var(--amber);color:var(--amber)}
+.item .cnt{color:var(--amber)}
+.cat-h::before,.cats button::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cc,var(--c0));margin-right:.55em;vertical-align:.18em}
+.cats button::before{width:6px;height:6px}
+.cat-h{color:var(--ink)}
+[data-k="0"]{--cc:var(--c0)} [data-k="1"]{--cc:var(--c1)} [data-k="2"]{--cc:var(--c2)} [data-k="3"]{--cc:var(--c3)} [data-k="4"]{--cc:var(--c4)}
+.cats button.on{border-bottom-color:var(--amber)}
+
+/* ---------- 配色試做（?pal=a／b／c 預覽）：每組只有一個主色 ---------- */
+@media not (prefers-color-scheme:dark){
+:root:not([data-theme="dark"])[data-pal="a"]{--paper:#fbfaf7;--sheet:#ffffff;--band:#f5efe6;--rule:#e7e1d7;--ink:#2b2724;--muted:#857c72;--amber:#9a5b34;--amber-ink:#ffffff;--leaf:#9a5b34;--leaf-soft:#f4e9df;--on-leaf:#ffffff;--tea:#9a5b34;--tea-soft:#f4e9df;--indigo:#9a5b34;--indigo-soft:#f4e9df;--clay:#9a5b34;--clay-soft:#f4e9df;--ash:#9a5b34;--ash-soft:#f4e9df}
+:root:not([data-theme="dark"])[data-pal="b"]{--paper:#f9fbfa;--sheet:#ffffff;--band:#ecf3ef;--rule:#dce5e0;--ink:#24302b;--muted:#6c7a73;--amber:#4c7a68;--amber-ink:#ffffff;--leaf:#4c7a68;--leaf-soft:#e2eee8;--on-leaf:#ffffff;--tea:#4c7a68;--tea-soft:#e2eee8;--indigo:#4c7a68;--indigo-soft:#e2eee8;--clay:#4c7a68;--clay-soft:#e2eee8;--ash:#4c7a68;--ash-soft:#e2eee8}
+:root:not([data-theme="dark"])[data-pal="c"]{--paper:#fafbfc;--sheet:#ffffff;--band:#edf1f6;--rule:#dde3ea;--ink:#222831;--muted:#6b7380;--amber:#3d5a78;--amber-ink:#ffffff;--leaf:#3d5a78;--leaf-soft:#e2e9f2;--on-leaf:#ffffff;--tea:#3d5a78;--tea-soft:#e2e9f2;--indigo:#3d5a78;--indigo-soft:#e2e9f2;--clay:#3d5a78;--clay-soft:#e2e9f2;--ash:#3d5a78;--ash-soft:#e2e9f2}
+:root:not([data-theme="dark"])[data-pal] body{background-image:none}
+:root:not([data-theme="dark"])[data-pal] .item .pr,:root:not([data-theme="dark"])[data-pal] .bar .tot{color:var(--ink)}
+:root:not([data-theme="dark"])[data-pal] [data-k="0"]{--cc:var(--amber)} :root:not([data-theme="dark"])[data-pal] [data-k="1"]{--cc:color-mix(in srgb,var(--amber) 75%,#fff)}
+:root:not([data-theme="dark"])[data-pal] [data-k="2"]{--cc:color-mix(in srgb,var(--amber) 55%,#fff)} :root:not([data-theme="dark"])[data-pal] [data-k="3"]{--cc:color-mix(in srgb,var(--amber) 40%,#fff)}
+:root:not([data-theme="dark"])[data-pal] [data-k="4"]{--cc:color-mix(in srgb,var(--amber) 28%,#fff)}
+}
 </style>
 
 <div class="wrap" id="app">
@@ -349,6 +388,8 @@ var $ = function(id){ return document.getElementById(id); };
 var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 var money = function(n){ return '$' + n.toLocaleString('en-US'); };
 var WD = ['日','一','二','三','四','五','六'], WDE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+// 配色：預設 A 茶白；?pal=b／c 預覽其他組，?pal=0 看上一版
+(function(){ var m = location.search.match(/[?&]pal=([abc0])/), v = m ? m[1] : 'a'; if (v !== '0') document.documentElement.dataset.pal = v; })();
 var LANG = (function(){ var q = (location.search.match(/[?&]lang=(en|zh)/) || [])[1]; try { return q || localStorage.getItem('lang') || 'zh'; } catch(e){ return q || 'zh'; } })();
 var EN = function(){ return LANG === 'en'; };
 var T = function(zh, en){ return EN() ? en : zh; };
@@ -460,8 +501,8 @@ function renderStatic(){
 function renderMenu(){
   var cats = '', html = '';
   S.menu.forEach(function(c, ci){
-    cats += '<button type="button" data-cat="' + ci + '"' + (ci===0?' class="on"':'') + '>' + esc(N(c.cat)) + '</button>';
-    html += '<div class="cat-h" id="cat' + ci + '">' + esc(N(c.cat)) + '</div>';
+    cats += '<button type="button" data-k="' + (ci % 5) + '" data-cat="' + ci + '"' + (ci===0?' class="on"':'') + '>' + esc(N(c.cat)) + '</button>';
+    html += '<div class="cat-h" data-k="' + (ci % 5) + '" id="cat' + ci + '">' + esc(N(c.cat)) + '</div>';
     c.items.forEach(function(it, ii){
       var n = cart.filter(function(l){ return l.name===it.name; }).reduce(function(s,l){ return s+l.qty; },0);
       var sp = salePrice(it.name, it.price[0], orderDay());
