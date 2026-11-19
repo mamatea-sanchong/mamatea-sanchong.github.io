@@ -232,13 +232,15 @@ var STAFF_CSS = 'body{font:17px/1.6 -apple-system,"PingFang TC","Noto Sans TC",s
   '.card.s1{border-left-color:#2f6b3a}.card.s2{border-left-color:#999;opacity:.6}.card .t{font-size:20px;font-weight:700}.small{font-size:14px;color:#666}' +
   '.row{display:flex;gap:8px}.row button{font-size:16px;padding:10px;margin-top:8px}.tabs a{display:inline-block;margin-right:14px}table{border-collapse:collapse;width:100%}td{padding:4px 0;border-bottom:1px solid #eee}td:last-child{text-align:right;font-weight:700}';
 
+// 注意：Apps Script 的網頁是包在 iframe 裡，頁面裡的連結都要開在最外層（<base target="_top">），
+// 不然在 LINE 和手機瀏覽器會出現 ERR_BLOCKED_BY_RESPONSE。
 /** 店員在 LINE 點按鈕後看到的頁面 */
 function staffPage_(no, key) {
   var sheet = getSheet_(), row = findRow_(sheet, no);
   if (!row || key !== staffKey_(no)) return HtmlService.createHtmlOutput('<p style="font:20px sans-serif;padding:24px">連結不正確或訂單不存在。</p>');
   var v = sheet.getRange(row, 1, 1, NCOL).getDisplayValues()[0];
   var st = String(v[COL_STATUS - 1]).trim(), td = telDigits_(v[6]);
-  var html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>' + STAFF_CSS + '</style>' +
+  var html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_top"><style>' + STAFF_CSS + '</style>' +
     '<h1>訂單 ' + esc_(no) + '</h1>' +
     '<div class="when">' + esc_(dayWord_(v[3])) + ' ' + esc_(v[4]) + ' ' + esc_(v[2]) + '</div>' +
     '<div>' + esc_(v[5]) + (v[7] ? '（' + esc_(v[7]) + '）' : '') + '　' + (td ? '<a href="tel:' + td + '">📞 ' + esc_(v[6]) + '</a>' : esc_(v[6])) + '</div>' +
@@ -292,7 +294,7 @@ function todayPage_(d, key) {
     String(v[10]).split('\n').forEach(function (ln) { var m = ln.match(/^(.+?) ×(\d+)/); if (m) prep[m[1]] = (prep[m[1]] || 0) + Number(m[2]); });
   });
   var link = function (k, label) { var x = Utilities.formatDate(new Date(Date.now() + k * 864e5), TZ, 'yyyy-MM-dd'); return '<a href="' + WEB_URL + '?a=today&d=' + x + '&k=' + key + '">' + (x === day ? '<b>' + label + '</b>' : label) + '</a>'; };
-  var html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>' + STAFF_CSS + '</style>' +
+  var html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_top"><style>' + STAFF_CSS + '</style>' +
     '<div class="tabs">' + link(0, '今天') + link(1, '明天') + link(2, '後天') + '</div>' +
     '<h1>' + esc_(dayWord_(day).replace('⚠️ 預訂 ', '')) + ' 訂單</h1><div class="small">' + live.length + ' 張・' + cupsAll + ' 杯・$' + sumAll + '（不含無法接單、已取消）</div>' +
     (cupsAll ? '<h3>備料</h3><table>' + Object.keys(prep).sort(function (a, b) { return prep[b] - prep[a]; }).map(function (k) { return '<tr><td>' + esc_(k) + '</td><td>' + prep[k] + '</td></tr>'; }).join('') + '</table>' : '') +
@@ -308,7 +310,7 @@ function todayPage_(d, key) {
           (st ? '' : '<button class="ok" onclick="go(\'' + esc_(no) + '\',\'已接單\')">✅ 接單</button>') +
           '<button class="done" onclick="go(\'' + esc_(no) + '\',\'已完成\')">🧋 做好了</button></div>') + '</div>';
     }).join('') +
-    '<p class="small">無法接單請從 LINE 通知的按鈕進去選原因。頁面不會自動更新，往下拉或<a href="javascript:location.reload()">重新整理</a>。</p>' +
+    '<p class="small">無法接單請從 LINE 通知的按鈕進去選原因。頁面不會自動更新，按<a href="' + WEB_URL + '?a=today&d=' + day + '&k=' + key + '">重新整理</a>。</p>' +
     '<script>function go(n,s){var e=document.getElementById("s"+n);e.textContent="處理中…";' +
     'google.script.run.withSuccessHandler(function(m){e.textContent=m}).staffSet(n,' + JSON.stringify(key) + ',s,"")}</script>';
   return HtmlService.createHtmlOutput(html).setTitle('今日訂單').addMetaTag('viewport', 'width=device-width, initial-scale=1');
