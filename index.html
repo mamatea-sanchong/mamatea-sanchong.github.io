@@ -256,6 +256,16 @@ section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-alig
 .cat-h{color:var(--ink)}
 [data-k="0"]{--cc:var(--c0)} [data-k="1"]{--cc:var(--c1)} [data-k="2"]{--cc:var(--c2)} [data-k="3"]{--cc:var(--c3)} [data-k="4"]{--cc:var(--c4)}
 .cats button.on{border-bottom-color:var(--amber)}
+
+/* ---------- 配色試做（?pal=a／b／c 預覽）：每組只有一個主色 ---------- */
+:root[data-pal="a"]{--paper:#fbfaf7;--sheet:#ffffff;--band:#f5efe6;--rule:#e7e1d7;--ink:#2b2724;--muted:#857c72;--amber:#9a5b34;--amber-ink:#ffffff;--leaf:#9a5b34;--leaf-soft:#f4e9df;--on-leaf:#ffffff;--tea:#9a5b34;--tea-soft:#f4e9df;--indigo:#9a5b34;--indigo-soft:#f4e9df;--clay:#9a5b34;--clay-soft:#f4e9df;--ash:#9a5b34;--ash-soft:#f4e9df}
+:root[data-pal="b"]{--paper:#f9fbfa;--sheet:#ffffff;--band:#ecf3ef;--rule:#dce5e0;--ink:#24302b;--muted:#6c7a73;--amber:#4c7a68;--amber-ink:#ffffff;--leaf:#4c7a68;--leaf-soft:#e2eee8;--on-leaf:#ffffff;--tea:#4c7a68;--tea-soft:#e2eee8;--indigo:#4c7a68;--indigo-soft:#e2eee8;--clay:#4c7a68;--clay-soft:#e2eee8;--ash:#4c7a68;--ash-soft:#e2eee8}
+:root[data-pal="c"]{--paper:#fafbfc;--sheet:#ffffff;--band:#edf1f6;--rule:#dde3ea;--ink:#222831;--muted:#6b7380;--amber:#3d5a78;--amber-ink:#ffffff;--leaf:#3d5a78;--leaf-soft:#e2e9f2;--on-leaf:#ffffff;--tea:#3d5a78;--tea-soft:#e2e9f2;--indigo:#3d5a78;--indigo-soft:#e2e9f2;--clay:#3d5a78;--clay-soft:#e2e9f2;--ash:#3d5a78;--ash-soft:#e2e9f2}
+:root[data-pal] body{background-image:none}
+:root[data-pal] .item .pr,:root[data-pal] .bar .tot{color:var(--ink)}
+:root[data-pal] [data-k="0"]{--cc:var(--amber)} :root[data-pal] [data-k="1"]{--cc:color-mix(in srgb,var(--amber) 75%,#fff)}
+:root[data-pal] [data-k="2"]{--cc:color-mix(in srgb,var(--amber) 55%,#fff)} :root[data-pal] [data-k="3"]{--cc:color-mix(in srgb,var(--amber) 40%,#fff)}
+:root[data-pal] [data-k="4"]{--cc:color-mix(in srgb,var(--amber) 28%,#fff)}
 </style>
 
 <div class="wrap" id="app">
@@ -376,6 +386,7 @@ var $ = function(id){ return document.getElementById(id); };
 var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 var money = function(n){ return '$' + n.toLocaleString('en-US'); };
 var WD = ['日','一','二','三','四','五','六'], WDE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+(function(){ var m = location.search.match(/[?&]pal=([abc])/); if (m) document.documentElement.dataset.pal = m[1]; })();
 var LANG = (function(){ var q = (location.search.match(/[?&]lang=(en|zh)/) || [])[1]; try { return q || localStorage.getItem('lang') || 'zh'; } catch(e){ return q || 'zh'; } })();
 var EN = function(){ return LANG === 'en'; };
 var T = function(zh, en){ return EN() ? en : zh; };
