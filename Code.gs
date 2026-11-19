@@ -40,6 +40,7 @@ function doGet(e) {
   var q = (e && e.parameter) || {};
   if (q.a === 'status') return json_(orderStatus(q.no, q.t, q.tel));
   if (q.a === 'staff') return staffPage_(q.no, q.k);
+  if (q.a === 'set') return quickSet_(q.no, q.k, q.s);
   if (q.a === 'today') return todayPage_(q.d, q.k);
   if (q.a === 'cancel') return json_(customerCancel(q.no, q.t));
   return json_({ ok: true, service: '神農店訂單' });
@@ -138,7 +139,13 @@ function orderCard_(o, no) {
   if (o.note) body.push(T('📝 客人備註：' + o.note, { color: '#a8322a', weight: 'bold', margin: 'md' }));
   if (o.addr) body.push(T('📍 ' + (o.company ? o.company + '　' : '') + o.addr + '（' + o.dist + '）', { size: 'sm', margin: 'md' }));
   var staffUrl = WEB_URL + '?a=staff&no=' + encodeURIComponent(no) + '&k=' + staffKey_(no);
-  var footer = [{ type: 'button', style: 'primary', color: '#3e5b45', action: { type: 'uri', label: '✅ 接單／無法接單', uri: staffUrl } }];
+  // 店員只用 LINE：接單、做好了都是按一下就完成；無法接單或要看細節才進接單頁
+  var setUrl = function (st) { return WEB_URL + '?a=set&no=' + encodeURIComponent(no) + '&k=' + staffKey_(no) + '&s=' + encodeURIComponent(st); };
+  var footer = [
+    { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
+      { type: 'button', style: 'primary', color: '#3e5b45', action: { type: 'uri', label: '✅ 接單', uri: setUrl('已接單') } },
+      { type: 'button', style: 'primary', color: '#3f5b74', action: { type: 'uri', label: '🧋 做好了', uri: setUrl('已完成') } }] },
+    { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '❌ 無法接單／看明細', uri: staffUrl } }];
   var td = telDigits_(o.tel);
   if (td) footer.push({ type: 'button', style: 'secondary', action: { type: 'uri', label: '📞 打給 ' + String(o.name).slice(0, 8), uri: 'tel:' + td } });
   return { type: 'flex', altText: ('🧋 ' + when + '｜' + cups + ' 杯 $' + o.total + '｜' + no).slice(0, 400),
@@ -264,6 +271,29 @@ function staffPage_(no, key) {
     JSON.stringify(String(no)) + ',' + JSON.stringify(String(key)) + ',s,r||"")}</script>';
   return HtmlService.createHtmlOutput(html).setTitle('接單 ' + no)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/** LINE 卡片上的「接單」「做好了」：按一下就設定好，畫面只顯示結果 */
+function quickSet_(no, key, status) {
+  var page = function (icon, title, sub) {
+    return HtmlService.createHtmlOutput('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_top">' +
+      '<div style="font:20px/1.6 -apple-system,\'PingFang TC\',\'Noto Sans TC\',sans-serif;padding:48px 24px;text-align:center;color:#222">' +
+      '<div style="font-size:64px">' + icon + '</div><div style="font-size:26px;font-weight:700;margin:8px 0">' + esc_(title) + '</div>' +
+      '<div style="color:#555">' + sub + '</div><p style="color:#888;font-size:16px;margin-top:32px">可以關掉這頁，回到 LINE。</p></div>')
+      .setTitle(title).addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  };
+  if (key !== staffKey_(no) || ['已接單', '已完成'].indexOf(status) < 0) return page('⚠️', '連結不正確', '');
+  var sheet = getSheet_(), row = findRow_(sheet, no);
+  if (!row) return page('⚠️', '找不到訂單 ' + no, '');
+  var v = sheet.getRange(row, 1, 1, NCOL).getDisplayValues()[0], cur = String(v[COL_STATUS - 1]).trim();
+  var when = esc_(dayWord_(v[3]) + ' ' + v[4] + ' ' + v[2] + '｜' + v[5]);
+  if (cur === '已取消') return page('🚫', '客人已經取消這張單', when + '<br>不用做了。');
+  if (cur === '無法接單') return page('❌', '這張單已設為無法接單', when + '<br>要改的話，請按卡片上的「無法接單／看明細」。');
+  if (cur === status || (cur === '已完成' && status === '已接單')) return page('✔', no + ' 已經是「' + cur + '」', when + '<br>' + esc_(v[COL_TIME - 1] || ''));
+  var msg = staffSet(no, key, status, '');
+  var ok = msg.indexOf('✔') === 0;
+  return page(ok ? (status === '已完成' ? '🧋' : '✅') : '⚠️', ok ? no + (status === '已完成' ? ' 做好了' : ' 已接單') : msg,
+    when + (ok ? '<br>' + (status === '已完成' ? (v[2] === '自取' ? '客人會看到「可以來取囉」。' : '客人會看到「已出發外送」。') : '客人會看到「店家已接單」。飲料做好時，按同一張卡片的「🧋 做好了」。') : ''));
 }
 
 /** 店員頁面按下按鈕時呼叫（接單頁和今日訂單頁共用） */
