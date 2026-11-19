@@ -35,6 +35,7 @@ var WD = ['日', '一', '二', '三', '四', '五', '六'];
 // 營業時間（和網站 data.js 一樣）：用來決定開店前什麼時候傳今日摘要
 var HOURS = { 1: '11:00', 2: '11:00', 3: '11:00', 4: '11:00', 5: '11:00', 6: '12:00' };
 var REMIND_AFTER = 10, REMIND_WITHIN = 90, SUMMARY_BEFORE = 30;  // 分鐘
+var READY_BEFORE = 15;  // 預訂單（取餐前 1 小時以上下的單）已接單的，取餐前幾分鐘再提醒一次「該做了」
 
 function doGet(e) {
   var q = (e && e.parameter) || {};
@@ -62,8 +63,9 @@ function submitOrder(o) {
     var sheet = getSheet_();
     var tz = 'Asia/Taipei';
     var now = new Date();
-    var prefix = Utilities.formatDate(now, tz, 'MMdd') + '-';
-    // 用今天最大的號碼 +1（刪過列也不會重號）
+    // 編號用「取餐日」：明天取的單是明天的日期，店員當天好找
+    var prefix = String(o.day).slice(5, 7) + String(o.day).slice(8, 10) + '-';
+    // 用這一天最大的號碼 +1（刪過列也不會重號）
     var maxNo = 0, lastRow = sheet.getLastRow();
     if (lastRow >= 2) sheet.getRange(Math.max(2, lastRow - 499), 1, lastRow - Math.max(2, lastRow - 499) + 1, 1).getValues()
       .forEach(function (r) { var x = String(r[0]); if (x.indexOf(prefix) === 0) maxNo = Math.max(maxNo, Number(x.slice(prefix.length)) || 0); });
@@ -326,16 +328,22 @@ function todayPage_(d, key) {
   var day = /^\d{4}-\d{2}-\d{2}$/.test(d || '') ? d : Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
   var list = ordersOn_(day);
   var live = list.filter(function (v) { return ['無法接單', '已取消'].indexOf(String(v[COL_STATUS - 1]).trim()) < 0; });
-  var prep = {}, cupsAll = 0, sumAll = 0;
+  var prep = {}, tops = {}, cupsAll = 0, sumAll = 0;
   live.forEach(function (v) {
     cupsAll += Number(v[11]) || 0; sumAll += Number(v[12]) || 0;
-    String(v[10]).split('\n').forEach(function (ln) { var m = ln.match(/^(.+?) ×(\d+)/); if (m) prep[m[1]] = (prep[m[1]] || 0) + Number(m[2]); });
+    String(v[10]).split('\n').forEach(function (ln) {
+      var m = ln.match(/^(.+?) ×(\d+)(?:（(.*?)）)?/); if (!m) return;
+      prep[m[1]] = (prep[m[1]] || 0) + Number(m[2]);
+      String(m[3] || '').split('／').forEach(function (x) { if (x.charAt(0) === '加') tops[x.slice(1)] = (tops[x.slice(1)] || 0) + Number(m[2]); });
+    });
   });
+  var table = function (o) { return '<table>' + Object.keys(o).sort(function (a, b) { return o[b] - o[a]; }).map(function (k) { return '<tr><td>' + esc_(k) + '</td><td>' + o[k] + '</td></tr>'; }).join('') + '</table>'; };
   var link = function (k, label) { var x = Utilities.formatDate(new Date(Date.now() + k * 864e5), TZ, 'yyyy-MM-dd'); return '<a href="' + WEB_URL + '?a=today&d=' + x + '&k=' + key + '">' + (x === day ? '<b>' + label + '</b>' : label) + '</a>'; };
   var html = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base target="_top"><style>' + STAFF_CSS + '</style>' +
     '<div class="tabs">' + link(0, '今天') + link(1, '明天') + link(2, '後天') + '</div>' +
     '<h1>' + esc_(dayWord_(day).replace('⚠️ 預訂 ', '')) + ' 訂單</h1><div class="small">' + live.length + ' 張・' + cupsAll + ' 杯・$' + sumAll + '（不含無法接單、已取消）</div>' +
-    (cupsAll ? '<h3>備料</h3><table>' + Object.keys(prep).sort(function (a, b) { return prep[b] - prep[a]; }).map(function (k) { return '<tr><td>' + esc_(k) + '</td><td>' + prep[k] + '</td></tr>'; }).join('') + '</table>' : '') +
+    (cupsAll ? '<h3>備料</h3>' + table(prep) : '') +
+    (Object.keys(tops).length ? '<h3>加料</h3>' + table(tops) : '') +
     '<h3>訂單（按取餐時間）</h3>' + (list.length ? '' : '<p class="small">還沒有訂單。</p>') +
     list.map(function (v) {
       var st = String(v[COL_STATUS - 1]).trim(), cls = !st ? 's0' : st === '已接單' ? 's1' : 's2', no = v[0], td = telDigits_(v[6]);
@@ -404,6 +412,25 @@ function tick() {
       '👉 ' + WEB_URL + '?a=staff&no=' + encodeURIComponent(no) + '&k=' + staffKey_(no));
   });
   p.setProperty('REMINDED', reminded.filter(String).slice(-60).join(','));
+
+  // 3) 預訂單提醒：已接單、提早 1 小時以上下的單，取餐前 READY_BEFORE 分鐘推一次「該做了」（每張一次）
+  var readied = (p.getProperty('READIED') || '').split(',');
+  rows.forEach(function (v, i) {
+    var no = String(v[0]), st = String(v[COL_STATUS - 1]).trim();
+    if (!no || st !== '已接單' || readied.indexOf(no) >= 0) return;
+    var day = String(v[3]).replace(/\//g, '-'), time = String(v[4]).slice(0, 5);
+    if (day !== today) return;
+    var left = toMin(time) - nowMin, placed = raw[i][1] instanceof Date ? raw[i][1].getTime() : 0;
+    if (left > READY_BEFORE || left < -5 || !placed) return;
+    if (left + (Date.now() - placed) / 60000 < 60) return;   // 臨時下的單店員剛接，不用再提醒
+    readied.push(no);
+    var setUrl = WEB_URL + '?a=set&no=' + encodeURIComponent(no) + '&k=' + staffKey_(no) + '&s=' + encodeURIComponent('已完成');
+    var text = '🔔 預訂單 ' + no + ' 該做了\n今天 ' + time + ' ' + v[2] + '｜' + v[5] + '（還有 ' + Math.max(0, left) + ' 分鐘）\n' + v[10];
+    pushLine_([{ type: 'flex', altText: '🔔 預訂單 ' + no + ' 該做了（' + time + '）', contents: { type: 'bubble', size: 'kilo',
+      body: { type: 'box', layout: 'vertical', contents: [{ type: 'text', text: text.slice(0, 1500), wrap: true, size: 'sm' }] },
+      footer: { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#3f5b74', action: { type: 'uri', label: '🧋 做好了', uri: setUrl } }] } } }]);
+  });
+  p.setProperty('READIED', readied.filter(String).slice(-60).join(','));
 }
 
 /**
