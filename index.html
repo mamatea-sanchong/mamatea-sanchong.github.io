@@ -418,6 +418,7 @@ function renderStatic(){
   }).join('');
   var dl = S.delivery, p = S.preorder;
   $('rules').innerHTML = [
+    S.deliveryOff ? [T('外送','Delivery'), T('外送暫停中，網站目前只接受到店自取。大量訂購請打 ' + S.phone + ' 討論。', 'Delivery is paused for now — online orders are pickup only. For large orders, please call ' + S.phone + '.')] :
     [T('外送','Delivery'), T(dl.baseKm + ' 公里內滿 $' + dl.baseMin + ' 外送，每多 1 公里低消加 $' + dl.stepPerKm + '（以飲料原價計算）。超過 ' + dl.maxKm + ' 公里，建議來電確認（' + S.phone + '）。',
       'Minimum $' + dl.baseMin + ' within ' + dl.baseKm + ' km, +$' + dl.stepPerKm + ' for each extra km (counted at full price). Over ' + dl.maxKm + ' km, please call us (' + S.phone + ').')],
     [T('預購','Pre-order'), T('前一天 ' + p.cutoff + ' 前預購滿 ' + p.cups + ' 杯，整筆打 ' + zhZhe(p.rate) + '，網站下單自動計算。',
@@ -728,10 +729,12 @@ function renderTimes(){
   if (list.indexOf(keep) >= 0) $('time').value = keep;
 }
 function renderMode(){
+  // 暫停外送（data.js 的 deliveryOff）：藏起外送選項，固定到店自取
+  if (S.deliveryOff){ $('modePickup').checked = true; $('modeDelivery').closest('label').hidden = true; }
   var m = mode(), d = S.delivery;
   $('deliveryFields').hidden = m === '自取';
   $('companyField').hidden = m !== '外送';
-  $('modeHint').textContent = m === '自取' ? T('到店自取不限杯數。','Pickup has no minimum.')
+  $('modeHint').textContent = m === '自取' ? T('到店自取不限杯數。','Pickup has no minimum.') + (S.deliveryOff ? T('外送暫停中。', ' Delivery is paused for now.') : '')
     : T(d.baseKm + ' 公里內滿 $' + d.baseMin + '，每多 1 公里低消加 $' + d.stepPerKm + '（以原價計算）；超過 ' + d.maxKm + ' 公里，建議來電確認。',
         'Minimum $' + d.baseMin + ' within ' + d.baseKm + ' km, +$' + d.stepPerKm + ' per extra km (at full price). Over ' + d.maxKm + ' km, please call us.');
   $('payHint').textContent = T('付款：', 'Payment: ') + payText(m);
