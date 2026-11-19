@@ -58,6 +58,9 @@ window.SITE = {
   staffUntil: {1:'14:30', 4:'14:30'},  // 店員在店裡到幾點（沒寫的那天＝打烊時間）。網站最晚的取餐／外送時段就到這裡；之後下的單，網站會告訴客人「開店後確認」
   promoLeadDays: 2,      // 活動開始前幾天，首頁先出現預告卡（公告的上架日在 news 的 date 設定）
   daysAhead: 6,          // 可以預訂幾天後
+  deliveryLatest: {1:'14:30', 2:'14:30', 3:'14:30', 4:'14:30', 5:'14:30'},  // 外送最晚送達時間（0=週日…6=週六）；週一到五只到 14:30，週六照營業時間
+  deliveryLatestNote: '週一到週五外送只到 14:30，其他時間請提前來電安排；週六照營業時間外送。',
+  deliveryLatestNoteEn: 'Mon–Fri, delivery runs until 14:30 only — for other times, please call ahead. Saturday deliveries follow regular hours.',
   groupLatest: '14:30',  // 團購／下午茶最晚送達時間
   delivery: { baseKm: 2, baseMin: 300, stepPerKm: 100, maxKm: 4 }, // 2 公里內滿 300，每多 1 公里低消 +100；超過 maxKm 不設低消，建議來電確認
   // 公休日：網站不能選這些天取貨／外送。單一天寫日期；連續幾天寫 { start, end }，end 空著表示「還沒決定哪天開工」
