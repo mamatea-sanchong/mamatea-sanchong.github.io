@@ -39,7 +39,7 @@ var REMIND_AFTER = 10, REMIND_WITHIN = 90, SUMMARY_BEFORE = 30;  // 分鐘
 function doGet(e) {
   var q = (e && e.parameter) || {};
   if (q.a === 'status') return json_(orderStatus(q.no, q.t, q.tel));
-  if (q.a === 'staff') return staffPage_(q.no, q.k);
+  if (q.a === 'staff') return staffPage_(q.no, q.k, q.m);
   if (q.a === 'set') return quickSet_(q.no, q.k, q.s);
   if (q.a === 'today') return todayPage_(q.d, q.k);
   if (q.a === 'cancel') return json_(customerCancel(q.no, q.t));
@@ -145,7 +145,9 @@ function orderCard_(o, no) {
     { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
       { type: 'button', style: 'primary', color: '#3e5b45', action: { type: 'uri', label: '✅ 接單', uri: setUrl('已接單') } },
       { type: 'button', style: 'primary', color: '#3f5b74', action: { type: 'uri', label: '🧋 做好了', uri: setUrl('已完成') } }] },
-    { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '❌ 無法接單／看明細', uri: staffUrl } }];
+    { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
+      { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '❌ 無法接單', uri: staffUrl + '&m=no' } },
+      { type: 'button', style: 'secondary', height: 'sm', action: { type: 'uri', label: '📄 看明細', uri: staffUrl } }] }];
   var td = telDigits_(o.tel);
   if (td) footer.push({ type: 'button', style: 'secondary', action: { type: 'uri', label: '📞 打給 ' + String(o.name).slice(0, 8), uri: 'tel:' + td } });
   return { type: 'flex', altText: ('🧋 ' + when + '｜' + cups + ' 杯 $' + o.total + '｜' + no).slice(0, 400),
@@ -242,7 +244,8 @@ var STAFF_CSS = 'body{font:17px/1.6 -apple-system,"PingFang TC","Noto Sans TC",s
 // 注意：Apps Script 的網頁是包在 iframe 裡，頁面裡的連結都要開在最外層（<base target="_top">），
 // 不然在 LINE 和手機瀏覽器會出現 ERR_BLOCKED_BY_RESPONSE。
 /** 店員在 LINE 點按鈕後看到的頁面 */
-function staffPage_(no, key) {
+function staffPage_(no, key, m) {
+  var decline = m === 'no';   // 從 LINE 卡片的「無法接單」進來：直接顯示原因選項
   var sheet = getSheet_(), row = findRow_(sheet, no);
   if (!row || key !== staffKey_(no)) return HtmlService.createHtmlOutput('<p style="font:20px sans-serif;padding:24px">連結不正確或訂單不存在。</p>');
   var v = sheet.getRange(row, 1, 1, NCOL).getDisplayValues()[0];
@@ -257,6 +260,9 @@ function staffPage_(no, key) {
     '<div class="st" id="st">' + (st ? '目前狀態：' + esc_(st) + (v[COL_TIME - 1] ? '（' + esc_(v[COL_TIME - 1]) + '）' : '') + (v[COL_REASON - 1] ? '　' + esc_(v[COL_REASON - 1]) : '') : '還沒有人接單') + '</div>' +
     // 已經處理過的單：按鈕先收起來，避免兩個店員重複按
     // 已接單的單：直接顯示「做好了」，其他按鈕收在「要修改狀態」裡
+    (decline ? '<div class="st" style="color:#a33">❌ 無法接單：選一個原因（客人在網站上會看到）</div><div class="rs">' +
+      REASONS.map(function (r) { return '<button onclick="go(\'無法接單\',\'' + r + '\')">' + r + '</button>'; }).join('') +
+      '<button onclick="var r=prompt(\'其他原因（客人會看到）\');if(r)go(\'無法接單\',r)">其他原因…</button></div><div id="acts"></div>' :
     (st === '已接單' ? '<button class="done" onclick="this.remove();go(\'已完成\')">🧋 做好了（' + (v[2] === '自取' ? '通知客人可以來取' : '已出發外送') + '）</button>' : '') +
     (st ? '<button class="ghost" id="chg" onclick="this.remove();document.getElementById(\'acts\').style.display=\'block\'">要修改狀態</button>' : '') +
     '<div id="acts" style="display:' + (st ? 'none' : 'block') + '">' +
@@ -264,9 +270,10 @@ function staffPage_(no, key) {
     '<button class="no" onclick="document.getElementById(\'rs\').style.display=\'block\';this.style.display=\'none\'">❌ 無法接單</button>' +
     '<div class="rs" id="rs" style="display:none"><p class="small">選原因，客人在網站上會看到：</p>' +
     REASONS.map(function (r) { return '<button onclick="go(\'無法接單\',\'' + r + '\')">' + r + '</button>'; }).join('') +
-    '<button onclick="var r=prompt(\'其他原因（客人會看到）\');if(r)go(\'無法接單\',r)">其他原因…</button></div></div>' +
+    '<button onclick="var r=prompt(\'其他原因（客人會看到）\');if(r)go(\'無法接單\',r)">其他原因…</button></div></div>') +
     '<p class="small" style="margin-top:24px"><a href="' + WEB_URL + '?a=today&k=' + staffKey_('today') + '">📋 看今天全部訂單</a></p>' +
     '<script>function go(s,r){document.getElementById("st").textContent="處理中…";document.getElementById("acts").style.display="none";' +
+    'document.querySelectorAll(".rs").forEach(function(e){e.style.display="none"});window.scrollTo(0,0);' +
     'google.script.run.withSuccessHandler(function(m){document.getElementById("st").textContent=m}).staffSet(' +
     JSON.stringify(String(no)) + ',' + JSON.stringify(String(key)) + ',s,r||"")}</script>';
   return HtmlService.createHtmlOutput(html).setTitle('接單 ' + no)
@@ -288,7 +295,7 @@ function quickSet_(no, key, status) {
   var v = sheet.getRange(row, 1, 1, NCOL).getDisplayValues()[0], cur = String(v[COL_STATUS - 1]).trim();
   var when = esc_(dayWord_(v[3]) + ' ' + v[4] + ' ' + v[2] + '｜' + v[5]);
   if (cur === '已取消') return page('🚫', '客人已經取消這張單', when + '<br>不用做了。');
-  if (cur === '無法接單') return page('❌', '這張單已設為無法接單', when + '<br>要改的話，請按卡片上的「無法接單／看明細」。');
+  if (cur === '無法接單') return page('❌', '這張單已設為無法接單', when + '<br>要改的話，請按卡片上的「📄 看明細」。');
   if (cur === status || (cur === '已完成' && status === '已接單')) return page('✔', no + ' 已經是「' + cur + '」', when + '<br>' + esc_(v[COL_TIME - 1] || ''));
   var msg = staffSet(no, key, status, '');
   var ok = msg.indexOf('✔') === 0;
