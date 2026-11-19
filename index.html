@@ -1169,12 +1169,20 @@ function saveOrder(x){
 function fetchStatus(no, t){
   return fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no) + '&t=' + encodeURIComponent(t)).then(function(r){ return r.json(); });
 }
-function watchStatus(no, t, cb){
+function dropOrder(no){
+  try { localStorage.setItem('myOrders', JSON.stringify(loadOrders().filter(function(y){ return y.no !== no; }))); } catch(e){}
+}
+// expect：手機上存的取餐日期、時間。店家把訂單刪掉（例如測試單），或編號後來被別張單用掉，就從「你的訂單」拿掉
+function watchStatus(no, t, cb, expect, onGone){
   var stop = Date.now() + 3*3600e3;
+  var dd = function(x){ return String(x || '').replace(/\D/g, ''); };
   var tick = function(){
     if (Date.now() > stop) return;
     if (document.hidden){ setTimeout(tick, 20000); return; }
     fetchStatus(no, t).then(function(st){
+      var gone = st && ((!st.ok && /查不到/.test(st.error || '')) ||
+        (st.ok && expect && expect.day && st.day && (dd(st.day) !== dd(expect.day) || (expect.time && st.time && dd(st.time) !== dd(expect.time)))));
+      if (gone && onGone){ dropOrder(no); onGone(); return; }
       if (st && st.ok) cb(st);
       // 還沒接單、已接單（等做好）都繼續問；做好了、取消、無法接單就停
       if (!(st && st.ok && st.status && st.status !== '已接單')) setTimeout(tick, st && st.status === '已接單' ? 60000 : 20000);
@@ -1239,7 +1247,8 @@ function renderMyOrders(){
     return '<div class="status wait" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('', '', { mode: x.mode, no: x.no, t: x.t }) + '</div>';
   }).join('');
   list.forEach(function(x, i){
-    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at, { mode: x.mode, reason: st.reason, no: x.no, t: x.t, canCancel: 'reason' in st }); } });
+    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at, { mode: x.mode, reason: st.reason, no: x.no, t: x.t, canCancel: 'reason' in st }); } },
+      { day: x.day, time: x.time }, function(){ var el = $('mo' + i); if (el) el.remove(); });
   });
 }
 
