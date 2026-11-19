@@ -20,6 +20,12 @@ window.SITE = {
   lineUrl: '',           // LINE 加好友連結（選填，例：https://line.me/ti/p/xxxx）
 
   // 訂單送到哪裡：Google Apps Script 部署後的網址（…/exec）。空白＝預覽模式，訂單不會送出
+  // 暫停線上訂購：填開放日期，這天以前網站只能看菜單、查訂單，不能下單；到了這天自動開放。
+  // 要馬上開放就改成 ''；要延後就改日期。
+  orderingOpensOn: '',
+  // 暫停外送：true＝網站只能選到店自取；要恢復外送改成 false
+  deliveryOff: true,
+
   orderEndpoint: 'https://script.google.com/macros/s/AKfycbzk2CTeRzCQkpwKTYddIx7swi7cGdcXuW6FDVyTdTAJFWwbbKmS1uHj9znbSvXQ5G1c/exec',
 
   // 公告：最新的放最上面，最多顯示 4 則
@@ -37,10 +43,10 @@ window.SITE = {
       en: 'Closed on Jan 1 (Fri). Open as usual on Jan 2.' },
     { date: '2026-12-19', until: '2027-01-02', text: '週年慶 12/21–2/3：12/21–1/2 原茶買一送一；1/4–1/16 鮮奶茶第二杯半價；1/18–1/29 預購 10 杯 85 折；1/30–2/3 原茶買一送一。',
       en: 'Anniversary, Dec 21–Feb 3: pure tea BOGO (Dec 21–Jan 2), fresh milk tea 2nd cup half price (Jan 4–16), pre-order 10+ cups 15% off (Jan 18–29), pure tea BOGO again (Jan 30–Feb 3).' },
-    { date: '2026-11-21', until: '2026-12-19', text: '週一、四第二杯半價（11/23–12/19）：同一筆訂單每兩杯，較便宜的那杯半價。',
-      en: 'Mon & Thu, 2nd cup half price (Nov 23–Dec 19): in each order, every second (cheaper) cup is half price.' },
-    { date: '2026-11-12', text: '開放線上訂購：自取、外送都能在網站上下單。',
-      en: 'Online ordering is open: order here for pickup or delivery.' },
+    { date: '2026-11-24', until: '2026-12-19', text: '週一、四第二杯半價（11/26–12/19）：同一筆訂單每兩杯，較便宜的那杯半價。',
+      en: 'Mon & Thu, 2nd cup half price (Nov 26–Dec 19): in each order, every second (cheaper) cup is half price.' },
+    { date: '2026-11-19', text: '開放線上訂購：到店自取可以在網站上下單（外送暫停中）。',
+      en: 'Online ordering is open for pickup (delivery is paused for now).' },
     { date: '2026-11-12', text: '前一天 18:00 前預購滿 10 杯，整筆打 9 折。',
       en: 'Order 10+ cups by 6 PM the day before and get 10% off the whole order.' },
   ],
@@ -48,6 +54,8 @@ window.SITE = {
   // 營業時間：0=週日 … 6=週六，沒寫的那天公休
   hours: {1:['11:00','14:00'],2:['11:00','19:00'],3:['11:00','19:00'],4:['11:00','14:00'],5:['11:00','19:00'],6:['12:00','18:00']},
   leadMinutes: 40,       // 當天訂單至少提前幾分鐘
+  sameDayCutoff: {},     // 當天的單最晚幾點前要下，例：{1:'13:00', 4:'13:00'}。沒寫的那天＝取餐時間要比現在晚 leadMinutes 分鐘
+  staffUntil: {1:'14:30', 4:'14:30'},  // 店員在店裡到幾點（沒寫的那天＝打烊時間）。網站最晚的取餐／外送時段就到這裡；之後下的單，網站會告訴客人「開店後確認」
   promoLeadDays: 2,      // 活動開始前幾天，首頁先出現預告卡（公告的上架日在 news 的 date 設定）
   daysAhead: 6,          // 可以預訂幾天後
   groupLatest: '14:30',  // 團購／下午茶最晚送達時間
@@ -57,6 +65,12 @@ window.SITE = {
     '2027-01-01',
     { start: '2027-02-04', end: '2027-02-10' },   // 春節公休，2/11 恢復營業
   ],
+
+  // 付款方式：顯示在訂單、確認畫面和完成頁
+  payment: '取餐時付款，可用現金、LINE Pay、悠遊付（TWQR）。',
+  paymentEn: 'Pay when you pick up: cash, LINE Pay or EasyWallet (TWQR).',
+  paymentDelivery: '外送到達時付款，可用現金、LINE Pay、悠遊付（TWQR）。',
+  paymentDeliveryEn: 'Pay on delivery: cash, LINE Pay or EasyWallet (TWQR).',
 
   preorder: { cups: 10, cutoff: '18:00', rate: 0.9 },              // 前一天 18:00 前預購滿 10 杯打 9 折
 
@@ -70,7 +84,7 @@ window.SITE = {
   //   code        優惠碼，例：code: 'FACTORY', rate: 0.95（不會顯示在首頁）
   //   days 可限定星期幾（0=週日），start / end 是開始和結束日期（含當天）
   promos: [
-    { title: '週一、週四 第二杯半價', type: 'second-half', days: [1, 4], start: '2026-11-23', end: '2026-12-19',
+    { title: '週一、週四 第二杯半價', type: 'second-half', days: [1, 4], start: '2026-11-26', end: '2026-12-19',
       note: '同一筆訂單每兩杯，較便宜的那杯半價。',
       en: { title: 'Mon & Thu: 2nd cup half price', note: 'In each order, every second (cheaper) cup is half price.' } },
     { title: '鮮奶茶雙週 每杯折 10 元', type: 'item-price', cat: '鮮奶茶', off: 10, start: '2026-10-28', end: '2026-11-10',
@@ -116,9 +130,52 @@ window.SITE = {
     '愛玉':'Aiyu jelly', '布丁':'Pudding', '仙草凍':'Grass jelly', '蜂蜜凍':'Honey jelly', '寒天黑糖':'Brown sugar agar', '珍珠':'Boba', '椰果':'Nata de coco'
   },
 
+  // 飲料介紹：點品項時顯示在名稱下面（初稿，請店長改成自己的說法；不想顯示的刪掉那一行）
+  desc: {
+    '日月潭紅玉紅茶': '台茶18號，帶淡淡肉桂和薄荷香，招牌。',
+    '魚池阿薩姆紅茶': '茶味厚實，帶麥芽香，配甜度剛好。',
+    '蜜香紅茶': '帶自然的蜂蜜果香，不加蜜也甜潤。',
+    '四季青春茶': '清爽花香的烏龍，順口不苦澀。',
+    '茉香綠茶': '茉莉花窨的綠茶，清香解膩。',
+    '阿里山金萱茶': '高山金萱，帶淡淡奶香。',
+    '黃金蕎麥茶': '烘焙穀物香，無咖啡因，晚上也能喝。',
+    '古早味冬瓜茶': '古早味冬瓜茶，甜度固定。',
+    '黃金柳橙綠': '新鮮柳橙加綠茶，酸甜清爽。',
+    '蘋果紅茶': '蘋果果香配紅茶，甜度固定。',
+    '蘋果青茶': '蘋果果香配青茶，甜度固定。',
+    '檸檬愛玉紅茶': '檸檬紅茶加愛玉，酸甜消暑。',
+    '冬瓜檸檬愛玉': '冬瓜茶加檸檬和愛玉，甜度固定。',
+    '蜂蜜凍檸檬青茶': '檸檬青茶加 Q 彈蜂蜜凍。',
+    '檸檬愛玉': '檸檬汁加愛玉，不含茶。',
+    '甘蔗青茶': '甘蔗汁的自然甜，配清爽青茶。',
+    '梅子醋青茶': '梅子醋的酸香，開胃解膩，甜度固定。',
+    '百香果綠茶': '百香果果肉加綠茶，酸甜有籽。',
+    '冰梅茉香綠茶': '冰梅的鹹甜，配茉莉綠茶。',
+    '檸檬紅茶': '經典檸檬紅茶。',
+    '冬瓜檸檬': '冬瓜茶加檸檬，不含茶，甜度固定。',
+    '多多綠茶': '養樂多加綠茶，酸甜好入口。',
+    '翡翠檸檬': '檸檬綠茶，清爽解渴。',
+    '冬瓜青茶': '冬瓜茶加青茶，古早味。',
+    '黑糖珍珠鮮奶': '黑糖珍珠加鮮奶，不含茶，甜度固定。',
+    '仙草凍鮮奶': '仙草凍加鮮奶，不含茶。',
+    '紅玉鮮奶茶': '紅玉紅茶加鮮奶，茶香最濃的一杯。',
+    '錫蘭鮮奶茶': '錫蘭紅茶加鮮奶，順口經典。',
+    '桂妃鮮奶茶': '桂花烏龍加鮮奶，帶淡淡花香。',
+    '格雷伯爵鮮奶茶': '佛手柑香的伯爵茶加鮮奶。',
+    '碳焙烏龍鮮奶茶': '炭焙烏龍的焙火香，配鮮奶。',
+    '阿薩姆鮮奶茶': '阿薩姆紅茶加鮮奶，茶味厚實。',
+    '茉香綠鮮奶茶': '茉莉綠茶加鮮奶，清香不膩。',
+    '冬瓜鮮奶茶': '冬瓜茶加鮮奶，甜度固定。',
+    '黃金蕎麥鮮奶茶': '蕎麥茶加鮮奶，穀物香，無咖啡因。',
+    '奶蓋紅玉紅茶': '紅玉紅茶上面一層鹹甜奶蓋。',
+    '奶蓋金萱茶': '金萱烏龍上面一層鹹甜奶蓋。'
+  },
+  // 飲料照片（選填）：把照片放進網站的 photos 資料夾，再寫一行，例：'紅玉鮮奶茶': 'photos/hongyu-milk.jpg'
+  photos: {},
+
   sugar: ['正常糖','八分糖','半糖','微糖','無糖'],
   ice:   ['正常冰','少冰','微冰','去冰','溫'],
-  toppings: [ {name:'愛玉',price:15}, {name:'布丁',price:15}, {name:'仙草凍',price:15}, {name:'蜂蜜凍',price:15},
+  toppings: [ {name:'愛玉',price:15}, {name:'仙草凍',price:15}, {name:'蜂蜜凍',price:15},
               {name:'寒天黑糖',price:15}, {name:'珍珠',price:10}, {name:'椰果',price:10} ],
   sizes: ['L'],
   // 菜單：price 依 sizes 順序填。hot = 招牌推薦，fixed = 固定甜度（不能調糖）

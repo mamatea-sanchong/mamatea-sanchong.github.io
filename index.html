@@ -6,30 +6,47 @@
 <meta name="description" content="紅茶媽媽三重神農店，五谷王北街上的原葉茶飲。線上訂購、自取、外送。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@400;600;700&display=swap">
 <style>
 /* Layout: one quiet column like a tea-house leaflet; a vertical-set hero line is the single bold move, everything else is rules and whitespace */
 :root{
   --paper:#f3f2ec; --sheet:#fbfaf6; --ink:#1e221f; --muted:#6c716a; --rule:#d8d7cd;
   --leaf:#3e5b45; --leaf-soft:#e3e9e1; --on-leaf:#f7f7f2; --warn:#9a5b12; --err:#a8322a;
-  --serif:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  /* 功能色：取自茶與土的顏色，低彩度 */
+  --tea:#8a5a2b; --tea-soft:#f1e7da;        /* 公告：茶褐 */
+  --indigo:#3f5b74; --indigo-soft:#e2e8ec;  /* 外送：靛 */
+  --clay:#9b5034; --clay-soft:#f2e3dc;      /* 查訂單：赤土 */
+  --ash:#5f5a52; --ash-soft:#e9e6df;        /* 門市：墨灰 */
+  --err-soft:#f3dfdc;
+  --amber:#a4522c; --amber-ink:#fbf4ec;      /* 紅茶琥珀：只用在加入／送出和價格 */
+  --band:#efe9dd;                            /* 區塊交替底色：淡茶 */
+  --c0:#8a5a2b; --c1:#6f8a5a; --c2:#c9a77c; --c3:#a2714a; --c4:#d9c7a5;  /* 分類色點：原茶／特調／鮮奶茶／奶茶／奶蓋 */
+  /* 全站用楷體（霞鶩文楷，手機電腦都會載入）；只有填寫欄位用黑體 */
+  --serif:"LXGW WenKai TC","BiauKai","DFKai-SB","標楷體","Kaiti TC",KaiTi,"Noto Serif TC",serif;
   --sans:"PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
-  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80; color-scheme:dark}}
+  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
+  --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --amber:#e09a6c; --amber-ink:#1c1410; --band:#1a1c19; --c0:#d6ad7f; --c1:#a9c191; --c2:#e1c9a3; --c3:#cf9f78; --c4:#ece0c8;
+  --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#151715; --sheet:#1c1f1c; --ink:#e9e8e0; --muted:#a3a79f; --rule:#343833;
-  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80; color-scheme:dark}
+  --leaf:#9fc1a5; --leaf-soft:#25302a; --on-leaf:#151715; --warn:#e2a95a; --err:#f08a80;
+  --tea:#d6ad7f; --tea-soft:#2e271f; --indigo:#9db6cc; --indigo-soft:#202a32; --clay:#e0a084; --clay-soft:#33241e;
+  --amber:#e09a6c; --amber-ink:#1c1410; --band:#1a1c19; --c0:#d6ad7f; --c1:#a9c191; --c2:#e1c9a3; --c3:#cf9f78; --c4:#ece0c8;
+  --ash:#bdb6aa; --ash-soft:#282724; --err-soft:#3a2422; color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.75;
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.75;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 110px}
 .wrap{max-width:640px;margin:0 auto}
 a{color:inherit}
 .serif{font-family:var(--serif)}
 .num{font-family:var(--serif);font-variant-numeric:tabular-nums}
 button,input,select,textarea{font:inherit;color:inherit}
+input,select,textarea{font-family:var(--sans)}   /* 填寫欄位用黑體，電話、地址比較好認 */
 :focus-visible{outline:2px solid var(--leaf);outline-offset:3px}
 
 /* top bar */
@@ -74,6 +91,8 @@ section{padding-block:44px;border-bottom:1px solid var(--rule)}
 .news li:first-child{border-top:0;padding-top:0}
 .news time{color:var(--muted);font-size:13px}
 .news div{min-width:0}
+.news li.news-more{display:block;border-top:1px dashed var(--rule)}
+.news-more button{background:none;border:0;padding:0;color:var(--leaf);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
 .promo{display:block;text-decoration:none;border:1px solid var(--leaf);background:var(--leaf-soft);color:var(--ink);padding:12px 14px;margin-top:18px}
 .promo b{font-family:var(--serif);color:var(--leaf);letter-spacing:.08em;margin-right:8px}
 .promo small{display:block;color:var(--muted);font-size:12px}
@@ -129,6 +148,8 @@ section{padding-block:44px;border-bottom:1px solid var(--rule)}
 .hours td{padding:7px 0;border-bottom:1px solid var(--rule)}
 .hours td:last-child{text-align:right;font-family:var(--serif);font-variant-numeric:tabular-nums}
 .hours tr.today td{color:var(--leaf);font-weight:600}
+.hours .tag{display:inline-block;font-size:12px;font-weight:400;padding:1px 6px;margin-left:6px;border:1px solid var(--muted);color:var(--muted);letter-spacing:.04em}
+.hours .tag.on{border-color:var(--leaf);color:var(--paper);background:var(--leaf)}
 .addr{margin-top:22px;display:grid;gap:6px}
 footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;letter-spacing:.2em}
 
@@ -154,15 +175,109 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 .demo{border:1px dashed var(--warn);color:var(--warn);font-size:13px;padding:8px 10px;margin-top:14px}
 .done{text-align:center;padding-block:48px 24px}
 .done .no{font-family:var(--serif);font-size:36px;font-weight:700;color:var(--leaf);letter-spacing:.06em}
+.status{border:1px solid var(--rule);border-left:4px solid var(--muted);background:var(--sheet);padding:12px 14px;margin-top:14px;text-align:left;font-size:15px}
+.status b{display:block;font-size:17px}
+.status small{display:block;color:var(--muted)}
+.status.wait{border-color:var(--tea);background:var(--tea-soft)} .status.wait b{color:var(--tea)}
+.status.ok{border-color:var(--leaf);background:var(--leaf-soft)} .status.ok b{color:var(--leaf)}
+.status.no{border-color:var(--err);background:var(--err-soft)} .status.no b{color:var(--err)}
+
+/* 每個區塊一個功能色：標題前的小方印、英文副標、導覽列的小點 */
+#news{--ac:var(--tea);--ac-soft:var(--tea-soft)}
+#order{--ac:var(--leaf);--ac-soft:var(--leaf-soft)}
+#lookup{--ac:var(--clay);--ac-soft:var(--clay-soft)}
+#delivery{--ac:var(--indigo);--ac-soft:var(--indigo-soft)}
+#visit{--ac:var(--ash);--ac-soft:var(--ash-soft)}
+section .sec-h h2::before{content:"";display:inline-block;width:.42em;height:.42em;background:var(--ac,var(--leaf));margin-right:.5em;vertical-align:.18em;border-radius:1px}
+section .sec-h span{color:var(--ac,var(--muted))}
+.top nav a::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:5px;vertical-align:.2em;background:var(--muted)}
+.top nav a[href="#news"]::before{background:var(--tea)}
+.top nav a[href="#order"]::before{background:var(--leaf)}
+.top nav a[href="#delivery"]::before{background:var(--indigo)}
+.top nav a[href="#visit"]::before{background:var(--ash)}
+.top nav a[href="#lookup"]::before{background:var(--clay)}
+.news time{color:var(--tea)!important}
+#lkForm{background:var(--clay-soft);border:1px solid var(--rule);border-top:3px solid var(--clay);padding:16px 16px 18px}
+#lkForm .btn{border-color:var(--clay);color:var(--clay);background:var(--sheet)}
+#delivery .rule b{color:var(--indigo)}
+#delivery .rules{border-left:3px solid var(--indigo);padding-left:14px}
+.slip{border-top:3px solid var(--leaf)!important}
+#myOrders .status{margin:12px 0 0}
+.ono{color:inherit;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.od-info{font-size:15px;margin:10px 0}
+.od-items{white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.7;background:var(--bg);border:1px solid var(--rule);padding:12px;border-radius:6px;margin:10px 0}
+.done .when{font-size:18px;margin-block:16px 4px}
+.done .pay{text-align:left;font-size:14px}
+.done details.rcpt{text-align:left;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin-block:14px}
+.done details.rcpt summary{cursor:pointer;color:var(--leaf);font-size:15px}
 .done pre{text-align:left;white-space:pre-wrap;background:var(--sheet);border:1px solid var(--rule);padding:14px;font:inherit;font-size:13px;margin-block:18px}
+/* 加入訂單的小提示、視窗關閉鈕、收據式明細 */
+.toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top,0px));z-index:15;background:var(--ink);color:var(--paper);
+  font-size:14px;padding:8px 16px;border-radius:2px;max-width:calc(100% - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.04em;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:.94}
+.bar .tot.bump{animation:bump .35s}
+@keyframes bump{50%{transform:scale(1.08)}}
+.sheet-x{position:absolute;top:10px;right:max(10px,env(safe-area-inset-right,0px));width:40px;height:40px;border:0;background:none;font-size:24px;line-height:1;color:var(--muted);cursor:pointer;z-index:1}
+.need-pick{font-size:13px;color:var(--warn);margin-top:6px}
+.rc{border:1px solid var(--rule);background:var(--sheet);padding:4px 14px;text-align:left;font-size:15px}
+.rc .r{display:flex;gap:10px;padding:8px 0;border-bottom:1px dashed var(--rule)}
+.rc .r:last-child{border-bottom:0}
+.rc .r .d{flex:1;min-width:0}
+.rc .r small{display:block;color:var(--muted);font-size:13px}
+.rc .r .p{font-variant-numeric:tabular-nums;white-space:nowrap}
+.rc .r.tot{font-weight:600}
+.rc .r.meta{display:block;color:var(--muted);font-size:14px}
+.pay{font-size:13px;color:var(--muted);margin-top:10px}
+.mine{font-size:12px;color:var(--muted);margin-top:6px}
+.mine button{background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit}
+body.paused .item .add{visibility:hidden}
+body.paused .toast{white-space:normal;text-align:center}
 @media (max-width:420px){ .hero{gap:14px;padding-top:24px} .vert{font-size:20px;padding-left:10px} .hero h1{font-size:34px} .top nav{gap:12px} }
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}*{transition:none!important}}
+
+/* ---------- 配色：一個暖色重點＋區塊交替底色＋紙張紋理＋茶葉小圖＋分類色點 ---------- */
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .22 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E")}
+#order,#delivery{background:var(--band);box-shadow:0 0 0 100vmax var(--band);clip-path:inset(0 -100vmax);border-bottom-color:transparent}
+#order .cats{background:var(--band)}
+#order .slip{background:var(--sheet)}
+section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-align:-.04em;margin-right:.45em;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 20C4 11 10 4 20 4c0 10-7 16-16 16zm0 0c3-4 7-8 11-11' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 20C4 11 10 4 20 4c0 10-7 16-16 16zm0 0c3-4 7-8 11-11' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+#lookup .sec-h h2::before,#visit .sec-h h2::before{
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9h12v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 9h12v5a6 6 0 0 1-6 6 6 6 0 0 1-6-6zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1.5 1.5 1.5 3M12 3c0 1.5 1.5 1.5 1.5 3' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+#submitBtn,#sheetAdd,#cfGo{background:var(--amber);border-color:var(--amber);color:var(--amber-ink)}
+.item .pr,.bar .tot,.li .p,#sheetAdd{font-variant-numeric:tabular-nums}
+.item .pr,.bar .tot{color:var(--amber)}
+.item .add{border-color:var(--amber);color:var(--amber)}
+.item .cnt{color:var(--amber)}
+.cat-h::before,.cats button::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cc,var(--c0));margin-right:.55em;vertical-align:.18em}
+.cats button::before{width:6px;height:6px}
+.cat-h{color:var(--ink)}
+[data-k="0"]{--cc:var(--c0)} [data-k="1"]{--cc:var(--c1)} [data-k="2"]{--cc:var(--c2)} [data-k="3"]{--cc:var(--c3)} [data-k="4"]{--cc:var(--c4)}
+.cats button.on{border-bottom-color:var(--amber)}
+
+/* ---------- 配色試做（?pal=a／b／c 預覽）：每組只有一個主色 ---------- */
+@media not (prefers-color-scheme:dark){
+:root:not([data-theme="dark"])[data-pal="a"]{--paper:#fbfaf7;--sheet:#ffffff;--band:#f5efe6;--rule:#e7e1d7;--ink:#2b2724;--muted:#857c72;--amber:#9a5b34;--amber-ink:#ffffff;--leaf:#9a5b34;--leaf-soft:#f4e9df;--on-leaf:#ffffff;--tea:#9a5b34;--tea-soft:#f4e9df;--indigo:#9a5b34;--indigo-soft:#f4e9df;--clay:#9a5b34;--clay-soft:#f4e9df;--ash:#9a5b34;--ash-soft:#f4e9df}
+:root:not([data-theme="dark"])[data-pal="b"]{--paper:#f9fbfa;--sheet:#ffffff;--band:#ecf3ef;--rule:#dce5e0;--ink:#24302b;--muted:#6c7a73;--amber:#4c7a68;--amber-ink:#ffffff;--leaf:#4c7a68;--leaf-soft:#e2eee8;--on-leaf:#ffffff;--tea:#4c7a68;--tea-soft:#e2eee8;--indigo:#4c7a68;--indigo-soft:#e2eee8;--clay:#4c7a68;--clay-soft:#e2eee8;--ash:#4c7a68;--ash-soft:#e2eee8}
+:root:not([data-theme="dark"])[data-pal="c"]{--paper:#fafbfc;--sheet:#ffffff;--band:#edf1f6;--rule:#dde3ea;--ink:#222831;--muted:#6b7380;--amber:#3d5a78;--amber-ink:#ffffff;--leaf:#3d5a78;--leaf-soft:#e2e9f2;--on-leaf:#ffffff;--tea:#3d5a78;--tea-soft:#e2e9f2;--indigo:#3d5a78;--indigo-soft:#e2e9f2;--clay:#3d5a78;--clay-soft:#e2e9f2;--ash:#3d5a78;--ash-soft:#e2e9f2}
+:root:not([data-theme="dark"])[data-pal] body{background-image:none}
+:root:not([data-theme="dark"])[data-pal] .item .pr,:root:not([data-theme="dark"])[data-pal] .bar .tot{color:var(--ink)}
+:root:not([data-theme="dark"])[data-pal] [data-k="0"]{--cc:var(--amber)} :root:not([data-theme="dark"])[data-pal] [data-k="1"]{--cc:color-mix(in srgb,var(--amber) 75%,#fff)}
+:root:not([data-theme="dark"])[data-pal] [data-k="2"]{--cc:color-mix(in srgb,var(--amber) 55%,#fff)} :root:not([data-theme="dark"])[data-pal] [data-k="3"]{--cc:color-mix(in srgb,var(--amber) 40%,#fff)}
+:root:not([data-theme="dark"])[data-pal] [data-k="4"]{--cc:color-mix(in srgb,var(--amber) 28%,#fff)}
+}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));z-index:9;border:1px solid var(--rule);background:var(--sheet);color:var(--ink);
+  font-family:var(--serif);font-size:13px;letter-spacing:.08em;padding:7px 12px;border-radius:999px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);
+  opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .2s,transform .2s}
+.totop.on{opacity:.95;transform:none;pointer-events:auto}
 </style>
 
 <div class="wrap" id="app">
   <div class="top">
     <span class="open" id="openState"><i></i><span></span></span>
-    <div class="top-r"><nav aria-label="頁面導覽"><a href="#news" data-en="News">公告</a><a href="#order" data-en="Menu">菜單訂購</a><a href="#delivery" data-en="Delivery">外送</a><a href="#visit" data-en="Store">門市資訊</a></nav><button type="button" class="lang" id="langBtn" aria-label="Switch language">EN</button></div>
+    <div class="top-r"><nav aria-label="頁面導覽"><a href="#news" data-en="News">公告</a><a href="#order" data-en="Menu">菜單訂購</a><a href="#delivery" data-en="Delivery">外送</a><a href="#visit" data-en="Store">門市資訊</a><a href="#lookup" data-en="My order">查訂單</a></nav><button type="button" class="lang" id="langBtn" aria-label="Switch language">EN</button></div>
   </div>
 
   <header class="hero">
@@ -176,7 +291,9 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
     </div>
     <div class="vert" id="vert" aria-hidden="true"></div>
   </header>
+  <div id="pauseNote" class="promo" style="display:none;border-color:var(--tea);background:var(--tea-soft)"></div>
   <div id="promos"></div>
+  <div id="myOrders"></div>
 
   <section id="news">
     <div class="sec-h"><h2 data-en="News">公告</h2><span data-en="">News</span></div>
@@ -193,34 +310,45 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
       <h3 data-en="Your order">訂單</h3>
       <div id="lines"></div>
 
-      <div class="lbl" data-en="Pickup or delivery">取餐方式</div>
-      <div class="chips">
+      <div class="lbl" id="modeLbl" data-en="Pickup or delivery">取餐方式</div>
+      <div class="chips" id="modeChips">
         <label><input type="radio" name="mode" id="modePickup" value="自取" checked><span data-en="Pickup">到店自取</span></label>
         <label><input type="radio" name="mode" id="modeDelivery" value="外送"><span data-en="Delivery">外送</span></label>
       </div>
       <div class="hint" id="modeHint"></div>
+      <div class="pay" id="payHint"></div>
 
       <div id="deliveryFields" hidden>
         <div class="field"><label for="dist" data-en="Distance from the shop">離店裡多遠</label><select id="dist"></select></div>
         <div class="field" id="companyField" hidden><label for="company" data-en="Company (optional)">公司／單位名稱（選填）</label><input id="company" autocomplete="organization"></div>
         <div class="field"><label for="addr" data-en="Delivery address (required)">外送地址（必填）</label><input id="addr" required autocomplete="street-address" placeholder="例：三重區五谷王北街○○號 3 樓" data-en-ph="Street, number, floor"></div>
+        <div class="hint" id="distHelp"></div>
       </div>
       <div class="field"><label for="name" data-en="Name">姓名</label><input id="name" autocomplete="name"></div>
-      <div class="row2">
-        <div class="field"><label for="tel" data-en="Mobile (or landline)">手機（二擇一）</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="09xx-xxx-xxx"></div>
-        <div class="field"><label for="tel2" data-en="Landline (or mobile)">市話（二擇一）</label><input id="tel2" type="tel" inputmode="tel" placeholder="02-xxxx-xxxx #分機" data-en-ph="02-xxxx-xxxx #ext"></div>
-      </div>
-      <p class="hint" style="margin:-4px 0 12px" data-en="One phone number is enough — mobile or landline.">手機、市話擇一填寫即可，公司訂購可以留公司電話。</p>
+      <div class="field"><label for="tel" data-en="Phone">電話</label><input id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="手機或市話，例 0912-345-678" data-en-ph="Mobile or landline, e.g. 0912-345-678"><input id="tel2" type="hidden"></div>
+      <p class="hint" style="margin:-4px 0 12px" data-en="Mobile or landline. For a company order, add the extension.">手機或市話都可以；公司訂購記得加分機。</p>
+      <div class="mine" id="mineNote" hidden></div>
       <div class="row2">
         <div class="field"><label for="day" data-en="Date">日期</label><select id="day"></select></div>
         <div class="field"><label for="time" data-en="Time">時間</label><select id="time"></select></div>
       </div>
+      <div class="hint" id="dayHint" hidden style="margin:-4px 0 12px"></div>
       <div class="field"><label for="code" data-en="Promo code (optional)">優惠碼（選填）</label><input id="code" autocomplete="off" autocapitalize="characters"></div>
       <div class="field"><label for="note" data-en="Notes (optional)">備註（選填）</label><textarea id="note" rows="2" placeholder="例：分兩袋裝、到了打電話" data-en-ph="e.g. split into two bags, call on arrival"></textarea></div>
       <div class="field"><label for="bags" data-en="Plastic bags ($1 each, 0 if none)">塑膠袋（$1／個，不需要填 0）</label><div class="qty"><button type="button" id="bMinus" aria-label="減少">−</button><input id="bags" type="number" inputmode="numeric" min="0" max="99" value="0" aria-label="塑膠袋數量"><button type="button" id="bPlus" aria-label="增加">+</button></div></div>
       <input class="hp" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="hint err" id="formErr" hidden></div>
       <div class="demo" id="demoNote" hidden data-en="Preview mode: orders will not be sent to the shop.">目前是預覽模式，送出的訂單不會傳到店裡。</div>
+    </form>
+  </section>
+
+  <section id="lookup">
+    <div class="sec-h"><h2 data-en="Order status">查訂單</h2><span data-en="">Order status</span></div>
+    <form id="lkForm" novalidate>
+      <div class="field"><label for="lkNo" data-en="Order number OR phone number (just one)">輸入訂單編號或電話（二擇一）</label><input id="lkNo" type="tel" inputmode="tel" autocomplete="off" placeholder="訂單編號 或 電話，填一個就好" data-en-ph="Order number or phone — just one"></div>
+      <p class="hint" style="margin:6px 0 0" data-en="Fill in just one: your order number (e.g. 1118-003) or the phone number you ordered with (e.g. 0912345678). Using your phone shows your 5 most recent orders.">只要填一個就好：訂單編號（例：1118-003），或下單時留的電話（例：0912345678）。用電話查會列出最近 5 張訂單。</p>
+      <button type="submit" class="btn ghost block" style="margin-top:12px" id="lkBtn" data-en="Check status">查詢</button>
+      <div id="lkOut" aria-live="polite"></div>
     </form>
   </section>
 
@@ -241,6 +369,7 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
   <footer id="foot"></footer>
 </div>
 
+<button type="button" class="totop" id="toTop" aria-label="回到頂部" data-en="↑ Top">↑ 回頂部</button>
 <div class="bar" id="bar" hidden>
   <div class="bar-in">
     <div class="sum">
@@ -253,7 +382,8 @@ footer{padding-block:36px;text-align:center;color:var(--muted);font-size:12px;le
 </div>
 
 <div class="mask" id="mask" hidden></div>
-<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="sheet-in" id="sheetBody"></div></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><button type="button" class="sheet-x" id="sheetX" aria-label="關閉">×</button><div class="sheet-in" id="sheetBody"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>document.write('<script src="data.js?t=' + Date.now() + '"><\/script>');</script>
 <script>
@@ -263,6 +393,8 @@ var $ = function(id){ return document.getElementById(id); };
 var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
 var money = function(n){ return '$' + n.toLocaleString('en-US'); };
 var WD = ['日','一','二','三','四','五','六'], WDE = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+// 配色：預設 A 茶白；?pal=b／c 預覽其他組，?pal=0 看上一版
+(function(){ var m = location.search.match(/[?&]pal=([abc0])/), v = m ? m[1] : 'a'; if (v !== '0') document.documentElement.dataset.pal = v; })();
 var LANG = (function(){ var q = (location.search.match(/[?&]lang=(en|zh)/) || [])[1]; try { return q || localStorage.getItem('lang') || 'zh'; } catch(e){ return q || 'zh'; } })();
 var EN = function(){ return LANG === 'en'; };
 var T = function(zh, en){ return EN() ? en : zh; };
@@ -273,6 +405,13 @@ function optsT(o){
   return o.split('／').map(function(x){ return x.charAt(0)==='加' && S.en[x.slice(1)] ? '+ ' + S.en[x.slice(1)] : N(x); }).join(' / ');
 }
 function applyStatic(){
+  if (S.deliveryOff){
+    // 外送暫停：選單拿掉「外送」、取餐方式只剩自取就不顯示選項、外送區塊改叫「訂購須知」
+    var h = document.querySelector('#delivery h2'), sp = document.querySelector('#delivery .sec-h span');
+    h.dataset.zh = '訂購須知'; h.dataset.en = 'How to order'; sp.dataset.zh = 'Ordering'; sp.dataset.en = '';
+    var na = document.querySelector('.top nav a[href="#delivery"]'); if (na) na.style.display = 'none';
+    $('modeLbl').style.display = 'none'; $('modeChips').style.display = 'none';
+  }
   document.documentElement.lang = EN() ? 'en' : 'zh-Hant';
   document.querySelectorAll('[data-en]').forEach(function(el){
     if (el.dataset.zh == null) el.dataset.zh = el.textContent;
@@ -315,10 +454,13 @@ function renderStatic(){
   $('openState').lastChild.textContent = on ? T('營業中・今天到 ', 'Open now · until ') + h[1] : h ? T('今天 ', 'Today ') + h[0] + '–' + h[1] : T('今天公休', 'Closed today');
 
   var td = ymd(new Date());
-  $('newsList').innerHTML = S.news.filter(function(n){ return n.date <= td && (!n.until || td <= n.until); }).slice(0,4).map(function(n){
+  // 公告只先顯示最新 2 則，其餘收進「更多公告」
+  var nl = S.news.filter(function(n){ return n.date <= td && (!n.until || td <= n.until); }).slice(0,5);
+  $('newsList').innerHTML = nl.map(function(n, i){
     var dt = new Date(n.date + 'T00:00:00');
-    return '<li><time class="num" datetime="' + n.date + '">' + (dt.getMonth()+1) + '.' + String(dt.getDate()).padStart(2,'0') + '</time><div>' + esc(EN() && n.en || n.text) + '</div></li>';
-  }).join('');
+    return '<li' + (i >= 2 ? ' class="more" hidden' : '') + '><time class="num" datetime="' + n.date + '">' + (dt.getMonth()+1) + '.' + String(dt.getDate()).padStart(2,'0') + '</time><div>' + esc(EN() && n.en || n.text) + '</div></li>';
+  }).join('') + (nl.length > 2 ? '<li class="news-more"><button type="button" id="newsMore">' + T('更多公告（' + (nl.length - 2) + '）', 'More news (' + (nl.length - 2) + ')') + '</button></li>' : '');
+  if ($('newsMore')) $('newsMore').onclick = function(){ [].forEach.call(document.querySelectorAll('#newsList .more'), function(x){ x.hidden = false; }); this.parentNode.remove(); };
 
   var shown = {}, banners = [], b0 = new Date();
   var lead = ymd(new Date(b0.getFullYear(), b0.getMonth(), b0.getDate() + (S.promoLeadDays != null ? S.promoLeadDays : S.daysAhead)));
@@ -337,17 +479,19 @@ function renderStatic(){
   }).join('');
   var dl = S.delivery, p = S.preorder;
   $('rules').innerHTML = [
+    S.deliveryOff ? [T('外送','Delivery'), T('外送暫停中，網站目前只接受到店自取。大量訂購請打 ' + S.phone + ' 討論。', 'Delivery is paused for now — online orders are pickup only. For large orders, please call ' + S.phone + '.')] :
     [T('外送','Delivery'), T(dl.baseKm + ' 公里內滿 $' + dl.baseMin + ' 外送，每多 1 公里低消加 $' + dl.stepPerKm + '（以飲料原價計算）。超過 ' + dl.maxKm + ' 公里，建議來電確認（' + S.phone + '）。',
       'Minimum $' + dl.baseMin + ' within ' + dl.baseKm + ' km, +$' + dl.stepPerKm + ' for each extra km (counted at full price). Over ' + dl.maxKm + ' km, please call us (' + S.phone + ').')],
     [T('預購','Pre-order'), T('前一天 ' + p.cutoff + ' 前預購滿 ' + p.cups + ' 杯，整筆打 ' + zhZhe(p.rate) + '，網站下單自動計算。',
       'Order ' + p.cups + '+ cups by ' + p.cutoff + ' the day before and get ' + enOff(p.rate) + ' — applied automatically.')],
-    [T('自取','Pickup'), T('不限杯數，選好時間到店直接取。', 'No minimum. Pick a time and collect at the shop.')]
+    [T('自取','Pickup'), T('不限杯數，選好時間到店直接取。', 'No minimum. Pick a time and collect at the shop.')],
+    [T('付款','Payment'), T((S.payment || '') + (S.paymentDelivery && !S.deliveryOff ? S.paymentDelivery : ''), (S.paymentEn || '') + (S.paymentDeliveryEn && !S.deliveryOff ? ' ' + S.paymentDeliveryEn : ''))]
   ].map(function(r){ return '<div class="rule"><b>' + r[0] + '</b><div>' + esc(r[1]) + '</div></div>'; }).join('');
 
   var today = d.getDay(), rows = '';
   [1,2,3,4,5,6,0].forEach(function(i){
     var hh = S.hours[i];
-    rows += '<tr' + (i===today?' class="today"':'') + '><td>' + T('星期' + WD[i], WDE[i]) + (i===today?T('（今天）',' (today)'):'') + '</td><td>' + (hh ? hh[0] + ' – ' + hh[1] : T('公休','Closed')) + '</td></tr>';
+    rows += '<tr' + (i===today?' class="today"':'') + '><td>' + T('星期' + WD[i], WDE[i]) + (i===today ? ' <span class="tag ' + (on ? 'on' : '') + '">' + (on ? T('營業中','Open') : !h ? T('今天公休','Closed today') : now < toMin(h[0]) ? T('還沒開門','Not open yet') : T('已打烊','Closed now')) + '</span>' : '') + '</td><td>' + (hh ? hh[0] + ' – ' + hh[1] : T('公休','Closed')) + '</td></tr>';
   });
   $('hours').innerHTML = rows;
   $('addrTxt').textContent = T(S.address, S.addressEn || S.address) + '　' + S.phone;
@@ -362,8 +506,8 @@ function renderStatic(){
 function renderMenu(){
   var cats = '', html = '';
   S.menu.forEach(function(c, ci){
-    cats += '<button type="button" data-cat="' + ci + '"' + (ci===0?' class="on"':'') + '>' + esc(N(c.cat)) + '</button>';
-    html += '<div class="cat-h" id="cat' + ci + '">' + esc(N(c.cat)) + '</div>';
+    cats += '<button type="button" data-k="' + (ci % 5) + '" data-cat="' + ci + '"' + (ci===0?' class="on"':'') + '>' + esc(N(c.cat)) + '</button>';
+    html += '<div class="cat-h" data-k="' + (ci % 5) + '" id="cat' + ci + '">' + esc(N(c.cat)) + '</div>';
     c.items.forEach(function(it, ii){
       var n = cart.filter(function(l){ return l.name===it.name; }).reduce(function(s,l){ return s+l.qty; },0);
       var sp = salePrice(it.name, it.price[0], orderDay());
@@ -382,8 +526,23 @@ $('cats').addEventListener('click', function(e){
   var el = $('cat' + b.dataset.cat);
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64 });
 });
+// 分類列跟著捲動：捲到哪一類就亮哪一類
+var spyT;
+window.addEventListener('scroll', function(){
+  if (spyT) return;
+  spyT = requestAnimationFrame(function(){
+    spyT = null;
+    var on = 0, line = $('cats').getBoundingClientRect().bottom + 24;
+    S.menu.forEach(function(c, i){ var h = $('cat' + i); if (h && h.getBoundingClientRect().top < line) on = i; });
+    var bs = $('cats').children, b = bs[on];
+    if (!b || b.classList.contains('on')) return;
+    [].forEach.call(bs, function(x){ x.classList.toggle('on', x === b); });
+    $('cats').scrollTo({ left: b.offsetLeft - 16 });
+  });
+}, { passive: true });
 $('menu').addEventListener('click', function(e){
   var row = e.target.closest('.item'); if (!row) return;
+  if (orderingPaused()){ toast(pauseText()); return; }
   openSheet(S.menu[row.dataset.c].items[row.dataset.i]);
 });
 
@@ -401,14 +560,17 @@ function openSheet(it){
   var multi = it.price.length > 1;
   $('sheetBody').innerHTML =
     '<h3 id="sheetTitle">' + esc(N(it.name)) + '</h3>' +
+    ((S.desc || {})[it.name] && !EN() ? '<p class="hint" style="margin:4px 2.5em 0 0">' + esc(S.desc[it.name]) + '</p>' : '') +
+    ((S.photos || {})[it.name] ? '<img src="' + esc(S.photos[it.name]) + '" alt="" style="display:block;width:100%;max-height:200px;object-fit:cover;margin-top:12px;border:1px solid var(--rule)">' : '') +
     (multi ? '<div class="lbl">' + T('尺寸','Size') + '</div>' + chips('o_size', S.sizes.map(function(s,i){ return s + ' $' + it.price[i]; }), 0) : '') +
-    (it.fixed ? '<div class="lbl">' + T('甜度：固定甜度','Sweetness: fixed') + '</div>' : '<div class="lbl">' + T('甜度','Sweetness') + '</div>' + chips('o_sugar', S.sugar, 0)) +
-    '<div class="lbl">' + T('冰塊','Ice') + '</div>' + chips('o_ice', S.ice, 0) +
+    (it.fixed ? '<div class="lbl">' + T('甜度：固定甜度','Sweetness: fixed') + '</div>' : '<div class="lbl">' + T('甜度','Sweetness') + '</div>' + chips('o_sugar', S.sugar, -1)) +
+    '<div class="lbl">' + T('冰塊','Ice') + '</div>' + chips('o_ice', S.ice, -1) +
     '<div class="lbl">' + T('加料','Toppings') + '</div>' + chips('o_top', S.toppings, -1, true) +
     '<div class="lbl">' + T('數量','Quantity') + '</div><div class="qty"><button type="button" id="qMinus" aria-label="−">−</button><input id="qNum" type="number" inputmode="numeric" min="1" max="99" value="1" aria-label="' + T('數量','Quantity') + '"><button type="button" id="qPlus" aria-label="+">+</button></div>' +
-    '<div style="display:flex;gap:10px;margin-top:22px"><button type="button" class="btn ghost" id="sheetCancel" style="flex:1">' + T('取消','Cancel') + '</button>' +
+    '<div class="need-pick" id="needPick"></div>' +
+    '<div style="display:flex;gap:10px;margin-top:14px"><button type="button" class="btn ghost" id="sheetCancel" style="flex:1">' + T('取消','Cancel') + '</button>' +
     '<button type="button" class="btn leaf" id="sheetAdd" style="flex:2"></button></div>';
-  $('mask').hidden = false; $('sheet').hidden = false;
+  showSheet();
   $('sheetBody').onchange = updSheet;
   $('qMinus').onclick = function(){ curQty = Math.max(1, curQty-1); updSheet(); };
   $('qPlus').onclick = function(){ curQty = Math.min(99, curQty+1); updSheet(); };
@@ -424,8 +586,22 @@ function unitOf(){
   var topSum = tops.reduce(function(s,t){ return s+t.price; },0);
   return { size: cur.price.length>1 ? S.sizes[si] : '', tops: tops, base: cur.price[si], topSum: topSum, unit: salePrice(cur.name, cur.price[si], orderDay()) + topSum };
 }
-function updSheet(typing){ if (typing !== true) $('qNum').value = curQty; $('sheetAdd').textContent = T('加入訂單 ','Add to order ') + money(unitOf().unit * curQty); }
+// 甜度、冰塊不預選：兩個都選了才能加入（避免沒注意就送出正常糖正常冰）
+function missingPick(){
+  var m = [];
+  if (!cur.fixed && !document.querySelector('input[name=o_sugar]:checked')) m.push(T('甜度','sweetness'));
+  if (!document.querySelector('input[name=o_ice]:checked')) m.push(T('冰塊','ice'));
+  return m;
+}
+function updSheet(typing){
+  if (typing !== true) $('qNum').value = curQty;
+  var m = missingPick();
+  $('sheetAdd').disabled = !!m.length;
+  $('sheetAdd').textContent = T('加入訂單 ','Add to order ') + money(unitOf().unit * curQty);
+  $('needPick').textContent = m.length ? T('請選' + m.join('、'), 'Please choose ' + m.join(' and ')) : '';
+}
 function addCur(){
+  if (missingPick().length) return;
   var u = unitOf();
   var sugar = cur.fixed ? '固定甜度' : S.sugar[+document.querySelector('input[name=o_sugar]:checked').value];
   var ice = S.ice[+document.querySelector('input[name=o_ice]:checked').value];
@@ -433,9 +609,21 @@ function addCur(){
   var same = cart.find(function(l){ return l.name===cur.name && l.opts===opts; });
   if (same) same.qty += curQty; else cart.push({ name: cur.name, opts: opts, base: u.base, tops: u.topSum, qty: curQty });
   closeSheet(); refresh();
+  toast(T('已加入　', 'Added: ') + N(cur.name) + (curQty > 1 ? ' ×' + curQty : '') + '　' + optsT(opts));
+  var tt = $('tot'); tt.classList.remove('bump'); void tt.offsetWidth; tt.classList.add('bump');
 }
-function closeSheet(){ $('mask').hidden = true; $('sheet').hidden = true; }
+// 視窗開著時，手機「返回」只關視窗，不會離開網頁
+function showSheet(){
+  $('mask').hidden = false; $('sheet').hidden = false;
+  if (!(history.state && history.state.sheet)) try { history.pushState({ sheet: 1 }, ''); } catch(e){}
+}
+function hideSheet(){ $('mask').hidden = true; $('sheet').hidden = true; }
+function closeSheet(){ hideSheet(); if (history.state && history.state.sheet) history.back(); }
+window.addEventListener('popstate', hideSheet);
 $('mask').addEventListener('click', closeSheet);
+$('sheetX').addEventListener('click', closeSheet);
+var toastT;
+function toast(msg){ var t = $('toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ t.classList.remove('on'); }, 1800); }
 document.addEventListener('keydown', function(e){ if (e.key==='Escape' && !$('sheet').hidden) closeSheet(); });
 
 /* ---------- promotions ---------- */
@@ -450,6 +638,15 @@ function isClosed(ds){ return (S.closed || []).some(function(c){ return typeof c
 function preRate(ds){ var r = S.preorder.rate; activePromos(ds).forEach(function(p){ if (p.type === 'preorder') r = Math.min(r, p.rate); }); return r; }
 function zhZhe(rate){ var r = Math.round(rate*100); return (r % 10 ? r : r/10) + ' 折'; }
 function enOff(rate){ return (100 - Math.round(rate*100)) + '% off'; }
+// 有「每週幾」的優惠（例：週一四第二杯半價），選的取餐日不是那幾天、但可選的日期裡有 → 回傳那個優惠
+function weekPromoMiss(){
+  var ds = orderDay(), opts = [].map.call($('day').options, function(x){ return x.value; });
+  return (S.promos || []).filter(function(p){ return p.days && !promoOn(p, ds) && opts.some(function(d){ return promoOn(p, d); }); })[0] || null;
+}
+function weekPromoTag(ds){
+  var p = (S.promos || []).filter(function(p){ return p.days && promoOn(p, ds); })[0];
+  return p ? T('・' + (p.type === 'second-half' ? '第二杯半價' : '優惠'), ' · ' + (p.type === 'second-half' ? '2nd cup ½ off' : 'deal')) : '';
+}
 function activePromos(ds){ return (S.promos || []).filter(function(p){ return promoOn(p, ds); }); }
 function salePrice(name, base, ds){
   var best = base;
@@ -522,7 +719,13 @@ function minOrder(){
 
 /* ---------- slip ---------- */
 function renderLines(){
-  if (!cart.length){ $('lines').innerHTML = '<div class="empty">' + T('還沒有飲料。點上面的品項加入。','No drinks yet. Tap a drink above to add it.') + '</div>'; return; }
+  if (!cart.length){
+    var lo = lsGet('lastOrder'), n = lo && lo.lines ? lo.lines.reduce(function(s,l){ return s + l.qty; }, 0) : 0;
+    $('lines').innerHTML = '<div class="empty">' + T('還沒有飲料。點上面的品項加入。','No drinks yet. Tap a drink above to add it.') + '</div>' +
+      (n ? '<button type="button" class="btn ghost block" id="reLast" style="margin-top:6px">' + T('再點一次上次的 ' + n + ' 杯', 'Reorder your last ' + n + (n === 1 ? ' drink' : ' drinks')) + '</button>' : '');
+    if (n) $('reLast').onclick = function(){ reorder(lo.lines); };
+    return;
+  }
   var p = S.preorder;
   $('lines').innerHTML = cart.map(function(l,i){
     return '<div class="li"><div class="d">' + esc(N(l.name)) + ' ×<input class="lq" type="number" inputmode="numeric" min="0" max="99" value="' + l.qty + '" data-i="' + i + '" aria-label="' + esc(N(l.name)) + T(' 數量',' quantity') + '">' + '<div class="o">' + esc(optsT(l.opts)) + T('　單價 ', ' · each ') + money(unitOfLine(l)) + '</div></div>' +
@@ -532,6 +735,8 @@ function renderLines(){
   (bags() ? '<div class="li"><div class="d">' + T('塑膠袋 ×','Plastic bags ×') + bags() + '</div><div class="p">' + money(bagFee()) + '</div></div>' : '') +
   '<div class="li"><div class="d"><b>' + T('共 ' + cups() + ' 杯', cups() + (cups()===1 ? ' cup' : ' cups')) + '</b></div><div class="p"><b>' + money(total()) + '</b></div></div>' +
   (discount() ? '<div class="hint">' + T('整筆優惠擇一，已自動幫你選最划算的。','One discount per order — the best one is applied automatically.') + '</div>' : '') +
+  (function(){ var w = weekPromoMiss(); return w && cups() >= 2 ? '<div class="hint promo-miss">' + T((w.type === 'second-half' ? '第二杯半價' : w.title) + '只限' + w.days.map(function(x){ return '週' + WD[x]; }).join('、') + '取餐；日期改選' + w.days.map(function(x){ return '週' + WD[x]; }).join('或') + '就有折扣。',
+     (w.type === 'second-half' ? '2nd cup half price' : (w.en ? w.en.title : w.title)) + ' applies to pickup on ' + w.days.map(function(x){ return WDE[x]; }).join(' / ') + ' only — choose one of those days to get it.') + '</div>' : ''; })() +
   (!discount() ? '<div class="hint">' + T('前一天 ' + p.cutoff + ' 前預購滿 ' + p.cups + ' 杯打 ' + zhZhe(preRate(orderDay())) + (cups() >= p.cups ? '，日期選明天以後就有折扣。' : '。'),
      'Order ' + p.cups + '+ cups by ' + p.cutoff + ' the day before for ' + enOff(preRate(orderDay())) + (cups() >= p.cups ? ' — pick tomorrow or later to get it.' : '.')) + '</div>' : '');
 }
@@ -561,10 +766,15 @@ function slotsFor(ds){
   if (isClosed(ds)) return [];
   var d = new Date(ds + 'T00:00:00'), h = S.hours[d.getDay()];
   if (!h) return [];
-  var start = toMin(h[0]) + 30, end = toMin(h[1]);
+  // 最晚的取餐／外送時間：店員在店裡到幾點（staffUntil，例：週一、四 14:30），沒寫就是打烊時間
+  var start = toMin(h[0]) + 30, end = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
   if (mode() === '團購') end = Math.min(end, toMin(S.groupLatest));
   var now = new Date();
-  if (ds === ymd(now)) start = Math.max(start, Math.ceil((now.getHours()*60 + now.getMinutes() + S.leadMinutes)/15)*15);
+  if (ds === ymd(now)){
+    var nowMin = now.getHours()*60 + now.getMinutes(), cut = (S.sameDayCutoff || {})[d.getDay()];
+    if (cut && nowMin > toMin(cut)) return [];   // 今天的線上訂購已截止
+    start = Math.max(start, Math.ceil((nowMin + S.leadMinutes)/15)*15);
+  }
   var out = []; for (var m = start; m <= end; m += 15) out.push(hm(m)); return out;
 }
 function renderDays(){
@@ -572,43 +782,78 @@ function renderDays(){
   for (var i = 0; i <= S.daysAhead; i++){
     var d = new Date(b.getFullYear(), b.getMonth(), b.getDate()+i), s = ymd(d);
     if (!slotsFor(s).length) continue;
-    o += '<option value="' + s + '">' + (EN() ? (i===0?'Today ':i===1?'Tomorrow ':'') + wd(d.getDay()) + ' ' + (d.getMonth()+1) + '/' + d.getDate() : dayLabelZh(s)) + '</option>';
+    var lb = EN() ? (i===0?'Today ':i===1?'Tomorrow ':'') + wd(d.getDay()) + ' ' + (d.getMonth()+1) + '/' + d.getDate() : dayLabelZh(s);
+    o += '<option value="' + s + '" data-l="' + esc(lb) + '">' + esc(lb + weekPromoTag(s)) + '</option>';
   }
   $('day').innerHTML = o;
+  // 今天有營業、但已經過了可以下當天單的時間：提醒客人改訂明天以後
+  var td = ymd(b), th = S.hours[b.getDay()];
+  var late = th && !isClosed(td) && !slotsFor(td).length;
+  $('dayHint').hidden = !late;
+  if (late) $('dayHint').textContent = T('今天的線上訂購已經截止，可以預訂之後的日期；今天要的話請打 ' + S.phone + '。',
+    'Online orders for today are closed. You can order for a later day, or call ' + S.phone + ' for today.');
   if (keep && [].some.call($('day').options, function(x){ return x.value===keep; })) $('day').value = keep;
   renderTimes();
 }
 function renderTimes(){
   var keep = $('time').value, list = $('day').value ? slotsFor($('day').value) : [];
-  $('time').innerHTML = list.map(function(t){ return '<option>' + t + '</option>'; }).join('');
+  var today = $('day').value === ymd(new Date());
+  $('time').innerHTML = list.map(function(t, i){ return '<option value="' + t + '">' + t + (i === 0 && today ? T('（最快）', ' (earliest)') : '') + '</option>'; }).join('');
   if (list.indexOf(keep) >= 0) $('time').value = keep;
 }
 function renderMode(){
+  // 暫停外送（data.js 的 deliveryOff）：藏起外送選項，固定到店自取
+  if (S.deliveryOff){ $('modePickup').checked = true; $('modeDelivery').closest('label').hidden = true; }
   var m = mode(), d = S.delivery;
   $('deliveryFields').hidden = m === '自取';
   $('companyField').hidden = m !== '外送';
-  $('modeHint').textContent = m === '自取' ? T('到店自取不限杯數。','Pickup has no minimum.')
+  $('modeHint').textContent = m === '自取' ? (S.deliveryOff ? T('目前只接受到店自取（外送暫停中），不限杯數。', 'Pickup only for now (delivery is paused). No minimum.') : T('到店自取不限杯數。','Pickup has no minimum.'))
     : T(d.baseKm + ' 公里內滿 $' + d.baseMin + '，每多 1 公里低消加 $' + d.stepPerKm + '（以原價計算）；超過 ' + d.maxKm + ' 公里，建議來電確認。',
         'Minimum $' + d.baseMin + ' within ' + d.baseKm + ' km, +$' + d.stepPerKm + ' per extra km (at full price). Over ' + d.maxKm + ' km, please call us.');
+  $('payHint').textContent = T('付款：', 'Payment: ') + payText(m);
   renderDays();
 }
+function payText(m){ return m === '自取' ? T(S.payment || '', S.paymentEn || S.payment || '') : T(S.paymentDelivery || S.payment || '', S.paymentDeliveryEn || S.paymentEn || ''); }
 document.querySelectorAll('input[name=mode]').forEach(function(r){ r.addEventListener('change', function(){ renderMode(); refresh(); }); });
 $('dist').addEventListener('change', refresh);
+// 不確定離店裡多遠：用 Google 地圖從店裡導航到客人填的地址
+function renderDistHelp(){
+  var a = $('addr').value.trim();
+  $('distHelp').innerHTML = a.length >= 6
+    ? '<a target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + encodeURIComponent(S.address) + '&destination=' + encodeURIComponent(/新北|台北|臺北/.test(a) ? a : '新北市' + a) + '">' + T('不確定距離？在 Google 地圖查從店裡到這個地址 →', 'Not sure? Check the distance on Google Maps →') + '</a>'
+    : T('不確定距離的話，先填地址，這裡會出現 Google 地圖查距離的連結。', 'Not sure? Enter your address first, then check the distance on Google Maps here.');
+}
+$('addr').addEventListener('input', renderDistHelp);
 $('day').addEventListener('change', function(){ renderTimes(); refresh(); });
 $('code').addEventListener('input', refresh);
 
 function refresh(){
   renderMenu(); renderLines();
   var t = listSubtotal(), min = minOrder();  // 外送低消一律用原價（任何優惠前）的飲料金額算
-  $('bar').hidden = !cart.length;
+  $('bar').hidden = !cart.length || orderingPaused();
   $('tot').textContent = money(total());
   $('meter').hidden = !min;
   $('meterFill').style.width = min ? Math.min(100, t/min*100) + '%' : '0';
   $('need').textContent = min && t < min ? T('外送還差 ','Delivery needs ') + money(min - t) + T('',' more') : T(cups() + ' 杯・' + mode(), cups() + (cups()===1?' cup':' cups') + ' · ' + (mode()==='自取' ? 'Pickup' : 'Delivery'));
   $('submitBtn').disabled = !!(min && t < min);
+  updBtn();
+  saveCart();
 }
+// 底部按鈕分兩段：資料還沒填完＝「填寫取餐資料」（只捲到要填的地方，不跳紅字）；都填好＝「送出訂單」
+function firstMissing(){
+  if (mode() !== '自取' && !$('addr').value.trim()) return 'addr';
+  if (!$('name').value.trim()) return 'name';
+  if (!$('tel').value.trim() && !$('tel2').value.trim()) return 'tel';
+  return '';
+}
+function updBtn(){
+  if ($('submitBtn').dataset.busy) return;
+  $('submitBtn').textContent = firstMissing() ? T('填寫取餐資料','Your details') + ' ↓' : T('送出訂單','Place order');
+}
+$('slip').addEventListener('input', updBtn);
 
 /* ---------- submit ---------- */
+function isMobile(v){ return /^09/.test(String(v).replace(/[\s\-]/g,'')); }
 function collect(){
   var m = mode();
   var deal = bestDeal();
@@ -618,21 +863,37 @@ function collect(){
     items: cart.map(function(l){ return { name: l.name, opts: l.opts, qty: l.qty, unit: unitOfLine(l) }; }),
     dist: m==='自取' ? '' : distLabel(+$('dist').value, 'zh'),
     company: m==='外送' ? $('company').value.trim() : '', addr: m==='自取' ? '' : $('addr').value.trim(),
-    name: $('name').value.trim(), mobile: $('tel').value.trim(), landline: $('tel2').value.trim(),
+    name: $('name').value.trim(), mobile: isMobile($('tel').value) ? $('tel').value.trim() : '', landline: isMobile($('tel').value) ? '' : $('tel').value.trim(),
     day: $('day').value, dayLabel: $('day').value ? dayLabelZh($('day').value) : '', time: $('time').value,
-    dayLabelEn: $('day').value ? $('day').options[$('day').selectedIndex].text : '',
+    dayLabelEn: $('day').value ? $('day').options[$('day').selectedIndex].dataset.l : '',
     promoEn: deal ? deal.titleEn : '', promoDetailEn: deal ? deal.detailEn : [],
     lang: LANG, note: $('note').value.trim(), website: $('website').value };
 }
+// 錯誤訊息顯示在出錯的欄位下面，並捲到那個欄位；客人一修改就消失
+var errAt = '';
+function showErr(msg, id){
+  var e = $('formErr'), f = id && $(id);
+  var box = f ? (f.closest('.row2') || f.closest('.field')) : null;
+  if (box) box.after(e); else $('demoNote').before(e);
+  e.hidden = !msg; e.textContent = msg || '';
+  if (!msg) return;
+  if (f){ f.scrollIntoView({block:'center'}); try { f.focus({preventScroll:true}); } catch(x){} }
+  else e.scrollIntoView({block:'center'});
+}
+$('slip').addEventListener('input', function(){ if (!$('formErr').hidden) showErr(''); });
 function validate(o){
+  errAt = '';
   if (!o.items.length) return T('還沒有選飲料。', 'Please add a drink first.');
-  if (!o.name) return T('請填姓名。', 'Please enter your name.');
+  if (!o.name){ errAt = 'name'; return T('請填姓名。', 'Please enter your name.'); }
+  errAt = 'tel';
   if (!o.mobile && !o.landline) return T('請留一支電話，手機或市話都可以。', 'Please leave a phone number (mobile or landline).');
   if (o.mobile && !/^09\d{8}$/.test(o.mobile.replace(/[\s\-]/g,''))) return T('手機號碼格式不對，請再確認一次（09 開頭共 10 碼）。', 'Mobile number looks wrong (Taiwan mobile: 10 digits starting with 09).');
-  if (o.landline && !/^0\d{7,9}$/.test(o.landline.split(/#|分機|轉|ext/i)[0].replace(/[\s\-()（）]/g,''))) return T('市話格式不對，請加上區碼，例：02-2xxx-xxxx #123。', 'Landline looks wrong — include the area code, e.g. 02-2xxx-xxxx #123.');
+  if (o.landline && !/^0\d{7,9}$/.test(o.landline.split(/#|分機|轉|ext/i)[0].replace(/[\s\-()（）]/g,''))) return T('電話格式不對：手機是 09 開頭 10 碼；市話請加區碼，例 02-2xxx-xxxx #123。', 'Phone number looks wrong — for a landline include the area code, e.g. 02-2xxx-xxxx #123.');
+  errAt = 'day';
   o.tel = [o.mobile, o.landline].filter(Boolean).join(' ／ ');
   if (!o.day || !o.time) return T('這幾天沒有可預訂的時段，請直接打訂購專線。', 'No time slots available in the next few days — please call us.');
-  if (o.mode !== '自取' && !o.addr){ $('addr').focus(); return T('外送要填地址。', 'Please enter a delivery address.'); }
+  if (o.mode !== '自取' && !o.addr){ errAt = 'addr'; return T('外送要填地址。', 'Please enter a delivery address.'); }
+  errAt = '';
   return '';
 }
 function orderText(o, no, lang){
@@ -652,6 +913,21 @@ function orderText(o, no, lang){
   L.push('共 ' + o.items.reduce(function(s,l){ return s+l.qty; },0) + ' 杯，合計 $' + o.total);
   if (o.note) L.push('備註：' + o.note);
   return L.join('\n');
+}
+// 確認畫面、完成頁用的收據式明細（和網站一樣的楷體排版）
+function receiptHtml(o, no){
+  var r = function(d, sub, p, cls){ return '<div class="r' + (cls ? ' ' + cls : '') + '"><div class="d">' + d + (sub ? '<small>' + sub + '</small>' : '') + '</div>' + (p != null ? '<div class="p">' + p + '</div>' : '') + '</div>'; };
+  var cupsN = o.items.reduce(function(s,l){ return s + l.qty; }, 0);
+  var h = '<div class="r meta">' + (no ? T('訂單 ', 'Order ') + esc(no) + '<br>' : '') +
+    '<b style="color:var(--ink)">' + esc(o.mode === '自取' ? T('自取', 'Pickup') : T('外送', 'Delivery')) + '｜' + esc(EN() ? o.dayLabelEn : o.dayLabel) + ' ' + esc(o.time) + '</b><br>' +
+    (o.company ? esc(o.company) + '　' : '') + esc(o.name) + '　' + esc(o.tel || [o.mobile, o.landline].filter(Boolean).join(' ／ ')) +
+    (o.addr ? '<br>' + esc(o.addr) + '（' + esc(EN() ? distLabel(+$('dist').value, 'en') : o.dist) + '）' : '') + '</div>';
+  o.items.forEach(function(l){ h += r(esc(N(l.name)) + ' ×' + l.qty, esc(optsT(l.opts)) + (l.qty > 1 ? T('　單價 ', ' · each ') + money(l.unit) : ''), money(l.unit * l.qty)); });
+  if (o.bags) h += r(T('塑膠袋 ×', 'Plastic bags ×') + o.bags, '', money(o.bagFee));
+  if (o.discount) h += r(T('優惠：', 'Discount: ') + esc(T(o.promo, o.promoEn || o.promo)), '', '−' + money(o.discount));
+  h += r(T('共 ' + cupsN + ' 杯', cupsN + (cupsN === 1 ? ' cup' : ' cups')), '', money(o.total), 'tot');
+  if (o.note) h += r(T('備註：', 'Notes: ') + esc(o.note));
+  return '<div class="rc">' + h + '</div>';
 }
 function orderTextEn(o, no){
   var nm = function(x){ return S.en[x] || x; };
@@ -676,27 +952,40 @@ function orderTextEn(o, no){
   return L.join('\n');
 }
 $('submitBtn').addEventListener('click', function(){
+  var fm = firstMissing();
+  if (fm && cart.length){
+    var f = $(fm), box = f.closest('.row2') || f.closest('.field');
+    box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    setTimeout(function(){ try { f.focus({ preventScroll: true }); } catch(x){} }, 350);
+    return;
+  }
+  // 網頁開太久的話，原本選的時段可能已經來不及：重算一次
+  var kd = $('day').value, kt = $('time').value;
+  renderDays();
+  if (kd && ($('day').value !== kd || $('time').value !== kt)){
+    refresh();
+    showErr(T('你選的時間已經來不及了，已改成目前最早可以的時段，請再確認一次日期和時間。', 'The time you picked is no longer available. We\'ve switched to the earliest slot — please check the date and time again.'), 'day');
+    return;
+  }
   var o = collect(), err = validate(o);
-  $('formErr').hidden = !err; $('formErr').textContent = err;
-  if (err){ $('formErr').scrollIntoView({block:'center'}); return; }
+  showErr(err, err ? errAt : '');
+  if (err) return;
   $('sheetBody').innerHTML = '<div class="confirm"><h3 id="sheetTitle">' + T('請確認訂單','Please check your order') + '</h3>' +
-    '<p class="hint" style="margin:0 0 10px">' + T('杯數、甜度冰塊、時間和電話都對了再送出。','Make sure the drinks, sweetness, ice, time and phone number are right.') + '</p><pre>' + esc(orderText(o, '', LANG)) + '</pre>' +
+    '<p class="hint" style="margin:0 0 10px">' + T('杯數、甜度冰塊、時間和電話都對了再送出。','Make sure the drinks, sweetness, ice, time and phone number are right.') + '</p>' + receiptHtml(o, '') + '<p class="pay">' + T('付款：', 'Payment: ') + esc(payText(o.mode)) + '</p>' +
     '<div style="display:flex;gap:10px;margin-top:16px"><button type="button" class="btn ghost" id="cfBack" style="flex:1">' + T('返回修改','Go back') + '</button>' +
     '<button type="button" class="btn leaf" id="cfGo" style="flex:2">' + T('確認送出','Confirm order') + '</button></div></div>';
   $('sheetBody').onchange = null;
-  $('mask').hidden = false; $('sheet').hidden = false;
+  showSheet();
   $('cfBack').onclick = closeSheet;
   $('cfGo').onclick = function(){ closeSheet(); sendOrder(o); };
   $('cfGo').focus();
 });
 function sendOrder(o){
-  var btn = $('submitBtn'); btn.disabled = true; btn.textContent = T('送出中…','Sending…');
+  var btn = $('submitBtn'); btn.disabled = true; btn.dataset.busy = 1; btn.textContent = T('送出中…','Sending…');
   var fail = function(msg){
-    btn.disabled = false; btn.textContent = T('送出訂單','Place order');
-    $('formErr').hidden = false;
-    $('formErr').textContent = T('訂單沒有送出：' + (msg || '網路不穩') + '。請再按一次，或打訂購專線 ' + S.phone + '。',
-      'Order not sent' + (msg ? ' (' + msg + ')' : '') + '. Please try again, or call ' + S.phone + '.');
-    $('formErr').scrollIntoView({block:'center'});
+    btn.disabled = false; delete btn.dataset.busy; btn.textContent = T('送出訂單','Place order');
+    showErr(T('訂單沒有送出：' + (msg || '網路不穩') + '。請再按一次，或打訂購專線 ' + S.phone + '。',
+      'Order not sent' + (msg ? ' (' + srv(msg) + ')' : '') + '. Please try again, or call ' + S.phone + '.'));
   };
   if (!S.orderEndpoint){ setTimeout(function(){ showDone(o, { ok:true, orderNo:'預覽-001', notified:false }); }, 400); return; }
   fetch(S.orderEndpoint, { method: 'POST', body: JSON.stringify(o) })
@@ -706,21 +995,297 @@ function sendOrder(o){
 }
 function showDone(o, r){
   var text = orderText(o, r.orderNo);
+  saveMe(o); cart = []; lsSet('cart', null);
+  lsSet('lastOrder', { at: Date.now(), lines: o.items.map(function(l){ return { name: l.name, opts: l.opts, qty: l.qty }; }) });
   $('bar').hidden = true;
   $('app').innerHTML = '<div class="done"><div class="lbl">' + T('訂單編號','Order number') + '</div><div class="no">' + esc(r.orderNo) + '</div>' +
-    (r.notified
-      ? '<p>' + T('店裡已經收到訂單。' + (o.mode==='自取' ? '請在 ' + esc(o.time) + ' 到店取餐。' : '會照時間送到。') + '要改單請打 ' + esc(S.phone) + '。',
-          'We\'ve received your order. ' + (o.mode==='自取' ? 'Please pick it up at ' + esc(o.time) + '.' : 'We\'ll deliver it on time.') + ' To make changes, call ' + esc(S.phone) + '.') + '</p>'
+    (r.notified && !r.token
+      ? '<p>' + T('店裡已經收到訂單。' + (o.mode==='自取' ? '請在 ' + esc(o.dayLabel) + ' ' + esc(o.time) + ' 到店取餐。' : '會照時間送到。') + '要改單請打 ' + esc(S.phone) + '。',
+          'We\'ve received your order. ' + (o.mode==='自取' ? 'Please pick it up ' + esc(o.dayLabelEn) + ' ' + esc(o.time) + '.' : 'We\'ll deliver it on time.') + ' To make changes, call ' + esc(S.phone) + '.') + '</p>'
+      : r.notified
+      ? '<div class="status wait" id="doneStatus">' + statusHtml('', '', { mode: o.mode, no: r.orderNo, t: r.token }) + '</div>' +
+        '<p class="when">' + T((o.mode==='自取' ? '取餐：' : '外送：') + '<b>' + esc(o.dayLabel) + ' ' + esc(o.time) + '</b>',
+          (o.mode==='自取' ? 'Pickup: ' : 'Delivery: ') + '<b>' + esc(o.dayLabelEn) + ' ' + esc(o.time) + '</b>') + '</p>' +
+        (o.mode === '自取' ? '<p style="font-size:14px">' + esc(T(S.address, S.addressEn || S.address)) + '　<a href="' + esc(S.mapUrl) + '" target="_blank" rel="noopener">' + T('地圖 →', 'Map →') + '</a></p>' : '') +
+        '<p class="hint">' + T('要改單請打 ' + esc(S.phone) + '。', 'To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : '<p>' + T('還差一步：請按下面的按鈕，用 LINE 把訂單傳給店長，或直接打 ' + esc(S.phone) + '。', 'One more step: tap the button below to send your order to us on LINE, or call ' + esc(S.phone) + '.') + '</p>' +
         '<a class="btn line block" href="https://line.me/R/msg/text/?' + encodeURIComponent(text) + '" target="_blank" rel="noopener">' + T('用 LINE 傳訂單給店長','Send order on LINE') + '</a>') +
-    '<pre>' + esc(orderText(o, r.orderNo, LANG)) + '</pre><button type="button" class="btn ghost block" onclick="location.reload()">' + T('回到首頁','Back to home') + '</button></div>';
+    (r.token ? '<p class="hint">' + T('之後可以在網站「查訂單」輸入訂單編號或電話，查詢狀態。', 'You can check the status anytime under "Order status" with your order number or phone number.') + '</p>' : '') +
+    '<p class="hint">' + T('建議截圖保存這個畫面，訂單編號查詢時會用到。', 'Tip: take a screenshot to keep your order number.') + '</p>' +
+    '<p class="pay">' + T('付款：', 'Payment: ') + esc(payText(o.mode)) + '</p>' +
+    '<details class="rcpt"' + (r.notified ? '' : ' open') + '><summary>' + T('看訂單明細', 'Order details') + '（' + o.items.reduce(function(n,l){ return n + l.qty; }, 0) + T(' 杯，$', ' cups, $') + o.total + '）</summary>' +
+      '<div style="margin-top:12px">' + receiptHtml(o, r.orderNo) + '</div></details>' +
+    '<button type="button" class="btn ghost block" style="margin-top:18px" onclick="location.reload()">' + T('回到首頁','Back to home') + '</button></div>';
   window.scrollTo(0,0);
+  if (r.token){
+    saveOrder({ no: r.orderNo, t: r.token, day: o.day, time: o.time, mode: o.mode, total: o.total,
+      cups: o.items.reduce(function(n,l){ return n + l.qty; }, 0),
+      items: o.items.map(function(l){ return l.name + ' ×' + l.qty + '（' + l.opts + '）單價 $' + l.unit; }).join('\n') + (o.bags ? '\n塑膠袋 ×' + o.bags + '　$' + o.bagFee : '') });
+    if (r.notified) watchStatus(r.orderNo, r.token, function(st){ var el = $('doneStatus'); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = statusHtml(st.status, st.at, { mode: o.mode, reason: st.reason, no: r.orderNo, t: r.token, canCancel: 'reason' in st }); } });
+  }
 }
 
+/* ---------- 記住客人資料、購物車（只存在這支手機） ---------- */
+var ME_KEYS = ['name','tel','tel2','addr','company'];
+function lsGet(k){ try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } }
+function lsSet(k, v){ try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+function loadMe(){
+  var m = lsGet('me'); if (!m) return;
+  ME_KEYS.forEach(function(k){ if (m[k] && !$(k).value) $(k).value = m[k]; });
+  if (!$('tel').value && m.tel2) $('tel').value = m.tel2;
+  if (m.mode === '外送' && !S.deliveryOff) $('modeDelivery').checked = true;
+  if (m.dist) $('dist').value = m.dist;
+  showMine();
+}
+function saveMe(o){
+  var m = lsGet('me') || {};
+  m.name = o.name; m.tel = o.mobile; m.tel2 = o.landline; m.mode = o.mode;
+  if (o.addr){ m.addr = o.addr; m.company = o.company; m.dist = $('dist').value; }
+  lsSet('me', m);
+}
+function showMine(){
+  var el = $('mineNote'); el.hidden = false;
+  el.innerHTML = T('已帶入上次填的資料（只存在這支手機）。', 'Filled in from your last order (saved only on this phone). ') + '<button type="button" id="mineClear">' + T('清除','Clear') + '</button>';
+  $('mineClear').onclick = function(){ lsSet('me', null); ME_KEYS.forEach(function(k){ $(k).value = ''; }); el.hidden = true; refresh(); };
+}
+function saveCart(){ lsSet('cart', cart.length ? { t: Date.now(), cart: cart } : null); }
+function loadCart(){
+  var c = lsGet('cart'); if (!c || !c.cart || Date.now() - c.t > 864e5) return;
+  // 價格以現在的菜單重算，菜單上已經沒有的品項或配料就拿掉
+  c.cart.forEach(function(l){ var x = lineFromMenu(l.name, l.opts, l.qty); if (x) cart.push(x); });
+}
+function lineFromMenu(name, opts, qty){
+  var it = null; S.menu.forEach(function(c){ c.items.forEach(function(i){ if (i.name === name) it = i; }); });
+  if (!it || !(qty > 0)) return null;
+  var parts = String(opts || '').split('／'), si = Math.max(0, S.sizes.indexOf(parts[0])), tops = 0, ok = true;
+  parts.forEach(function(x){ if (x.charAt(0) === '加'){ var t = S.toppings.filter(function(t){ return t.name === x.slice(1); })[0]; if (t) tops += t.price; else ok = false; } });
+  if (!ok || it.price[si] == null) return null;
+  return { name: name, opts: opts, base: it.price[si], tops: tops, qty: Math.min(99, qty) };
+}
+
+// 再點一次：照上次的品項、甜度冰塊放回訂單（價格用現在的菜單）
+function reorder(lines){
+  if (orderingPaused()){ toast(pauseText()); return; }
+  var n = 0;
+  lines.forEach(function(l){
+    var x = lineFromMenu(l.name, l.opts, l.qty); if (!x) return;
+    var same = cart.find(function(c){ return c.name === x.name && c.opts === x.opts; });
+    if (same) same.qty = Math.min(99, same.qty + x.qty); else cart.push(x);
+    n += x.qty;
+  });
+  refresh();
+  toast(n ? T('已加入 ' + n + ' 杯，請確認後送出', 'Added ' + n + ' — check and place your order') : T('上次的品項菜單上已經沒有了', 'Those drinks are no longer on the menu'));
+  if (n) $('slip').scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+// 從訂單明細文字（「紅玉鮮奶茶 ×2（半糖／少冰）單價 $70」）讀回品項
+function parseItems(txt){
+  return String(txt || '').split('\n').map(function(ln){ var m = ln.match(/^(.+?) ×(\d+)（(.*?)）/); return m && { name: m[1], qty: +m[2], opts: m[3] }; }).filter(Boolean);
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.reo'); if (!b) return;
+  closeSheet(); reorder(parseItems(b.dataset.items));
+});
+function reoBtn(items){ return parseItems(items).length ? '<small><button type="button" class="reo" data-items="' + esc(items) + '" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">' + T('再點一次','Order again') + '</button></small>' : ''; }
+
+/* ---------- 訂單狀態（已接單） ---------- */
+function nextStaffed(){
+  // 店裡現在有人嗎？沒有的話回傳下次有人的時間（例：明天 11:00）
+  var b = new Date(), nowMin = b.getHours()*60 + b.getMinutes();
+  for (var k = 0; k <= 8; k++){
+    var d = new Date(b.getFullYear(), b.getMonth(), b.getDate()+k), h = S.hours[d.getDay()];
+    if (!h || isClosed(ymd(d))) continue;
+    var until = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
+    if (k === 0 && nowMin >= toMin(h[0]) - 30 && nowMin < until) return '';
+    if (k > 0 || nowMin < toMin(h[0])) return (EN() ? (k===0?'today ':k===1?'tomorrow ':wd(d.getDay()) + ' ') : (k===0?'今天 ':k===1?'明天 ':(d.getMonth()+1) + '/' + d.getDate() + '（' + WD[d.getDay()] + '） ')) + h[0];
+  }
+  return EN() ? 'the next opening day' : '下次營業日';
+}
+function stClass(s){ return s === '已接單' || s === '已完成' ? 'ok' : s === '無法接單' || s === '已取消' ? 'no' : s ? '' : 'wait'; }
+// 進度：送出 → 已接單 → 做好了
+function stepsHtml(s, mode){
+  var k = !s ? 0 : s === '已接單' ? 1 : s === '已完成' ? 2 : -1;
+  if (k < 0) return '';
+  var names = [T('已送出','Sent'), T('已接單','Accepted'), mode === '外送' ? T('已出發','On the way') : T('可取餐','Ready')];
+  return '<small style="margin-top:6px">' + names.map(function(n, i){ return (i <= k ? '●' : '○') + ' ' + n; }).join('　—　') + '</small>';
+}
+// x：{ mode, reason, no, t, canCancel }（t＝下單時拿到的查詢碼；canCancel＝後端是新版、支援取消）
+/* ---------- 店家／系統回覆的英文版 ---------- */
+var SRV_EN = {
+  '品項售完': 'An item is sold out', '這個時段太滿': 'This time slot is fully booked', '超出外送範圍': 'Outside our delivery area', '今天臨時公休': 'The shop is closed today',
+  '自取': 'Pickup', '外送': 'Delivery',
+  '訂單格式不正確': 'invalid order', '格式不正確': 'invalid order', '系統忙碌中': 'system busy', '沒有品項': 'no items',
+  '品項太多，請直接打電話訂購': 'too many items, please order by phone', '請填姓名和電話': 'please fill in your name and phone',
+  '電話格式不對': 'invalid phone number', '外送要填地址': 'delivery needs an address',
+  '塑膠袋金額有誤，請重新整理網頁再下單': 'bag fee mismatch, please reload the page and order again',
+  '金額計算有誤，請重新整理網頁再下單': 'price mismatch, please reload the page and order again',
+  '請選取餐日期和時間': 'please choose a date and time', '這個時段已經來不及了，請重新整理網頁再選時間': 'that time has passed, please reload and pick another time',
+  '查不到訂單': 'order not found', '只能在下單的手機上取消': 'you can only cancel on the phone you ordered with',
+  '店家已經處理這張單，要取消請打電話': 'the shop has already handled this order, please call to cancel'
+};
+function itemsEn(txt){
+  if (LANG !== 'en') return txt;
+  var nm = function(x){ return S.en[x] || x; };
+  return String(txt).split('\n').map(function(ln){
+    var m = ln.match(/^(.+?) ×(\d+)（(.*?)）(?:單價 \$(\d+))?/);
+    if (!m) return ln.replace(/^塑膠袋/, 'Plastic bag').replace(/^共 (\d+) 杯/, '$1 cups');
+    var opts = m[3].split('／').map(function(x){ return x.charAt(0)==='加' && S.en[x.slice(1)] ? '+ ' + S.en[x.slice(1)] : nm(x); }).join(' / ');
+    return nm(m[1]) + ' ×' + m[2] + ' (' + opts + ')' + (m[4] ? ' $' + m[4] + ' each' : '');
+  }).join('\n');
+}
+function srv(s){ s = String(s || ''); return LANG === 'en' ? (SRV_EN[s] || s) : s; }
+function statusHtml(s, at, x){
+  x = x || {};
+  var h;
+  if (!s){
+    var n = nextStaffed();
+    h = '<b>' + T('⏳ 等待店家確認', '⏳ Waiting for the shop to confirm') + '</b>' +
+      (n ? T('店員現在不在店裡，會在 ' + n + ' 開店後確認。', 'No one is at the shop right now — we\'ll confirm after we open ' + n + '.')
+         : T('店家確認後，這裡會自動變成「已接單」。', 'This will change to "Accepted" once the shop confirms.'));
+    if (x.no && x.t && x.canCancel) h += '<small><button type="button" class="cxl" data-no="' + esc(x.no) + '" data-t="' + esc(x.t) + '" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit">' + T('店家接單前可以取消訂單','Cancel this order (before the shop accepts)') + '</button></small>';
+  }
+  else if (s === '已接單') h = '<b>' + T('✅ 店家已接單', '✅ Accepted by the shop') + '</b>' + (at ? T('確認時間 ', 'Confirmed ') + esc(at) : '');
+  else if (s === '已完成') h = '<b>' + (x.mode === '外送' ? T('🛵 飲料已出發外送', '🛵 Your order is on the way') : T('🧋 飲料做好了，可以來取囉', '🧋 Your drinks are ready for pickup')) + '</b>' + (at ? esc(at) : '');
+  else if (s === '已取消') h = '<b>' + T('🚫 訂單已取消', '🚫 Order cancelled') + '</b>' + (at ? esc(at) : '');
+  else if (s === '無法接單') h = '<b>' + T('❌ 店家無法接這張單', '❌ The shop can\'t take this order') + '</b>' +
+    (x.reason ? T('原因：' + esc(x.reason) + '。', 'Reason: ' + esc(srv(x.reason)) + '. ') : '') + T('有問題請打 ' + esc(S.phone) + '。', 'Questions? Call ' + esc(S.phone) + '.');
+  else h = '<b>' + esc(s) + '</b>' + (at ? esc(at) : '');
+  return h + stepsHtml(s, x.mode);
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('.cxl'); if (!b) return;
+  if (!confirm(T('確定要取消訂單 ' + b.dataset.no + '？', 'Cancel order ' + b.dataset.no + '?'))) return;
+  b.disabled = true; b.textContent = T('取消中…', 'Cancelling…');
+  fetch(S.orderEndpoint + '?a=cancel&no=' + encodeURIComponent(b.dataset.no) + '&t=' + encodeURIComponent(b.dataset.t)).then(function(r){ return r.json(); }).then(function(r){
+    if (r && r.ok && r.status === '已取消'){ var box = b.closest('.status'); box.className = 'status no'; box.innerHTML = (box.querySelector('small') && box.querySelector('small').innerHTML.indexOf('ono') >= 0 ? '<small>' + box.querySelector('small').innerHTML + '</small>' : '') + statusHtml('已取消'); }
+    else { b.disabled = false; b.textContent = (r && r.error && srv(r.error)) || T('取消失敗，請打 ' + S.phone, 'Could not cancel — please call ' + S.phone); }
+  }).catch(function(){ b.disabled = false; b.textContent = T('網路不穩，請再按一次', 'Network problem — try again'); });
+});
+function loadOrders(){ try { return JSON.parse(localStorage.getItem('myOrders') || '[]'); } catch(e){ return []; } }
+function saveOrder(x){
+  var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.no !== x.no && y.day >= td; });
+  list.unshift(x);
+  try { localStorage.setItem('myOrders', JSON.stringify(list.slice(0, 5))); } catch(e){}
+}
+function fetchStatus(no, t){
+  return fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no) + '&t=' + encodeURIComponent(t)).then(function(r){ return r.json(); });
+}
+function dropOrder(no){
+  try { localStorage.setItem('myOrders', JSON.stringify(loadOrders().filter(function(y){ return y.no !== no; }))); } catch(e){}
+}
+// expect：手機上存的取餐日期、時間。店家把訂單刪掉（例如測試單），或編號後來被別張單用掉，就從「你的訂單」拿掉
+function watchStatus(no, t, cb, expect, onGone){
+  var stop = Date.now() + 3*3600e3;
+  var dd = function(x){ return String(x || '').replace(/\D/g, ''); };
+  var tick = function(){
+    if (Date.now() > stop) return;
+    if (document.hidden){ setTimeout(tick, 20000); return; }
+    fetchStatus(no, t).then(function(st){
+      var gone = st && ((!st.ok && /查不到/.test(st.error || '')) ||
+        (st.ok && expect && expect.day && st.day && (dd(st.day) !== dd(expect.day) || (expect.time && st.time && dd(st.time) !== dd(expect.time)))));
+      if (gone && onGone){ dropOrder(no); onGone(); return; }
+      if (st && st.ok) cb(st);
+      // 還沒接單、已接單（等做好）都繼續問；做好了、取消、無法接單就停
+      if (!(st && st.ok && st.status && st.status !== '已接單')) setTimeout(tick, st && st.status === '已接單' ? 60000 : 20000);
+    }).catch(function(){ setTimeout(tick, 30000); });
+  };
+  tick();
+}
+$('lkForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var v = $('lkNo').value.trim(), digits = v.split(/#|分機|轉|ext/i)[0].replace(/\D/g, ''), out = $('lkOut'), q;
+  var err = function(msg){ out.innerHTML = '<p class="hint err">' + msg + '</p>'; };
+  // 7 碼（1118003 或 1118-003）＝訂單編號；8 碼以上＝電話
+  if (/^\d{4}\s*-?\s*\d{3}$/.test(v)) q = 'no=' + digits.slice(0,4) + '-' + digits.slice(4);
+  else if (digits.length >= 8) q = 'tel=' + digits;
+  else return err(T('請輸入訂單編號（例：1118-003），或下單時留的完整電話。', 'Enter your order number (e.g. 1118-003) or the full phone number you ordered with.'));
+  if (!S.orderEndpoint) return err(T('預覽模式無法查詢。', 'Not available in preview mode.'));
+  $('lkBtn').disabled = true; out.innerHTML = '<p class="hint">' + T('查詢中…', 'Checking…') + '</p>';
+  fetch(S.orderEndpoint + '?a=status&' + q).then(function(r){ return r.json(); }).then(function(st){
+    $('lkBtn').disabled = false;
+    if (!st || !st.ok || !(st.orders || []).length) return err(T('查不到訂單，請確認訂單編號或電話；有問題請打 ' + esc(S.phone) + '。', 'No order found. Please check the number, or call ' + esc(S.phone) + '.'));
+    out.innerHTML = st.orders.map(function(x){
+      var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
+      return '<div class="status ' + stClass(x.status) + '"><small>' + T('訂單 ', 'Order ') + onoLink(x.orderNo) + (x.time ? '｜' + esc(srv(x.mode)) + ' ' + esc(day) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(x.status, x.at, x) + reoBtn(x.items) + '</div>';
+    }).join('');
+  }).catch(function(){ $('lkBtn').disabled = false; err(T('網路不穩，請再試一次。', 'Network problem — please try again.')); });
+});
+/* ---------- 訂單明細（點訂單編號打開） ---------- */
+function onoLink(no){ return '<a href="#" class="ono" data-no="' + esc(no) + '">' + esc(no) + '</a>'; }
+document.addEventListener('click', function(e){
+  var a = e.target.closest('.ono'); if (!a) return;
+  e.preventDefault(); openOrder(a.dataset.no);
+});
+function openOrder(no){
+  $('sheetBody').onchange = null;
+  $('sheetBody').innerHTML = '<div class="confirm"><h3 id="sheetTitle">' + T('訂單 ', 'Order ') + esc(no) + '</h3><div id="odBody"><p class="hint">' + T('讀取中…', 'Loading…') + '</p></div>' +
+    '<div style="display:flex;gap:10px;margin-top:16px"><button type="button" class="btn ghost" id="odClose" style="flex:1">' + T('關閉','Close') + '</button>' +
+    '<button type="button" class="btn leaf" id="odReload" style="flex:1">' + T('重新整理','Refresh') + '</button></div></div>';
+  showSheet();
+  $('odClose').onclick = closeSheet;
+  $('odReload').onclick = function(){ openOrder(no); };
+  if (!S.orderEndpoint){ $('odBody').innerHTML = '<p class="hint err">' + T('預覽模式無法查詢。', 'Not available in preview mode.') + '</p>'; return; }
+  fetch(S.orderEndpoint + '?a=status&no=' + encodeURIComponent(no)).then(function(r){ return r.json(); }).then(function(x){
+    if (!$('odBody')) return;
+    if (x && x.ok && x.orders && x.orders[0]) x = Object.assign({}, x, x.orders[0]);   // 明細在 orders[0] 裡
+    if (!x || !x.ok){ $('odBody').innerHTML = '<p class="hint err">' + T('查不到這張訂單；有問題請打 ' + esc(S.phone) + '。', 'Order not found. Please call ' + esc(S.phone) + '.') + '</p>'; return; }
+    var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
+    var isPick = x.mode === '自取', mine;
+    $('odBody').innerHTML = '<div class="status ' + stClass(x.status) + '">' + statusHtml(x.status, x.at, x) + '</div>' +
+      '<div class="od-info">' + T(esc(x.mode) + '｜' + esc(day) + ' ' + esc(x.time), (isPick ? 'Pickup' : 'Delivery') + ' | ' + esc(day) + ' ' + esc(x.time)) +
+      (!isPick && x.dist ? T('（' + esc(x.dist) + '）', '') : '') + '</div>' +
+      ((!x.items && (mine = loadOrders().filter(function(y){ return y.no === no && y.items; })[0])) ? (x.items = mine.items, x.cups = mine.cups, x.total = mine.total, '') : '') +
+      (x.items ? '<div class="od-items">' + esc(itemsEn(x.items)) + '</div>' +
+        '<div class="od-info"><b>' + T('共 ' + esc(x.cups) + ' 杯，合計 $' + esc(x.total), esc(x.cups) + ' cups, total $' + esc(x.total)) + '</b></div>' + reoBtn(x.items)
+        : '<p class="hint">' + T('品項明細暫時無法顯示（店家系統更新中），訂單已經存在店裡，不影響取餐。', 'Item details are temporarily unavailable while we update our system. Your order is safely recorded.') + '</p>') +
+      '<p class="hint">' + T('為了保護個資，這裡不顯示姓名、電話和地址。要改單請打 ' + esc(S.phone) + '。', 'Name, phone and address are hidden for privacy. To change your order, call ' + esc(S.phone) + '.') + '</p>';
+  }).catch(function(){ if ($('odBody')) $('odBody').innerHTML = '<p class="hint err">' + T('網路不穩，請按重新整理。', 'Network problem — tap Refresh.') + '</p>'; });
+}
+function renderMyOrders(){
+  if (!S.orderEndpoint) return;
+  var td = ymd(new Date()), list = loadOrders().filter(function(y){ return y.day >= td; });
+  $('myOrders').innerHTML = list.map(function(x, i){
+    return '<div class="status wait" id="mo' + i + '"><small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml('', '', { mode: x.mode, no: x.no, t: x.t }) + '</div>';
+  }).join('');
+  list.forEach(function(x, i){
+    watchStatus(x.no, x.t, function(st){ var el = $('mo' + i); if (el){ el.className = 'status ' + stClass(st.status); el.innerHTML = '<small>' + T('你的訂單 ', 'Your order ') + onoLink(x.no) + (x.time ? '｜' + esc(x.day.slice(5).replace('-','/')) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(st.status, st.at, { mode: x.mode, reason: st.reason, no: x.no, t: x.t, canCancel: 'reason' in st }); } },
+      { day: x.day, time: x.time }, function(){ var el = $('mo' + i); if (el) el.remove(); });
+  });
+}
+
+// 暫停線上訂購（data.js 的 orderingOpensOn）：可以看菜單、查訂單，不能下單
+function orderingPaused(){ return !!(S.orderingOpensOn && ymd(new Date()) < S.orderingOpensOn); }
+function pauseText(){
+  var d = new Date(S.orderingOpensOn + 'T00:00:00');
+  return T('線上訂購 ' + (d.getMonth()+1) + '/' + d.getDate() + '（' + WD[d.getDay()] + '）開放。現在要訂飲料，請打 ' + S.phone + ' 或直接到店。',
+    'Online ordering opens ' + WDE[d.getDay()] + ' ' + (d.getMonth()+1) + '/' + d.getDate() + '. Until then, please call ' + S.phone + ' or visit the shop.');
+}
+function renderPause(){
+  var on = orderingPaused();
+  $('pauseNote').style.display = on ? '' : 'none';
+  if (on) $('pauseNote').innerHTML = '<b style="color:var(--tea)">' + T('線上訂購即將開放', 'Online ordering opens soon') + '</b>' + esc(pauseText());
+  $('slip').hidden = on;
+  document.querySelectorAll('.cta .btn.leaf').forEach(function(a){ a.textContent = on ? T('看菜單', 'View menu') : T('線上訂購', 'Order online'); });
+  document.body.classList.toggle('paused', on);
+  if (on){ cart = []; $('bar').hidden = true; }
+}
 $('langBtn').addEventListener('click', function(){
   LANG = EN() ? 'zh' : 'en';
   try { localStorage.setItem('lang', LANG); } catch(e){}
-  closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh();
+  closeSheet(); applyStatic(); renderStatic(); renderDist(); renderMode(); refresh(); renderPause();
 });
-applyStatic(); renderStatic(); renderDist(); renderMode(); refresh();
+applyStatic(); renderStatic(); renderDist(); loadMe(); loadCart(); renderMode(); renderDistHelp(); refresh(); renderPause(); renderMyOrders();
+
+/* ---------- 回頂部：往下捲一段後出現，位置避開底部訂單列 ---------- */
+(function(){
+  var b = $('toTop');
+  function upd(){
+    var bar = $('bar'), h = bar.hidden ? 0 : bar.offsetHeight;
+    b.style.bottom = 'calc(' + (h + 12) + 'px + ' + (h ? '0px' : 'env(safe-area-inset-bottom,0px)') + ')';
+    b.classList.toggle('on', window.scrollY > 700);
+  }
+  window.addEventListener('scroll', upd, { passive: true });
+  window.addEventListener('resize', upd);
+  b.onclick = function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} };
+  upd();
+})();
 </script>
