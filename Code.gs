@@ -249,10 +249,11 @@ function staffPage_(no, key) {
     (v[COL_NOTE - 1] ? '<div class="note">📝 客人備註：' + esc_(v[COL_NOTE - 1]) + '</div>' : '') +
     '<div class="st" id="st">' + (st ? '目前狀態：' + esc_(st) + (v[COL_TIME - 1] ? '（' + esc_(v[COL_TIME - 1]) + '）' : '') + (v[COL_REASON - 1] ? '　' + esc_(v[COL_REASON - 1]) : '') : '還沒有人接單') + '</div>' +
     // 已經處理過的單：按鈕先收起來，避免兩個店員重複按
+    // 已接單的單：直接顯示「做好了」，其他按鈕收在「要修改狀態」裡
+    (st === '已接單' ? '<button class="done" onclick="this.remove();go(\'已完成\')">🧋 做好了（' + (v[2] === '自取' ? '通知客人可以來取' : '已出發外送') + '）</button>' : '') +
     (st ? '<button class="ghost" id="chg" onclick="this.remove();document.getElementById(\'acts\').style.display=\'block\'">要修改狀態</button>' : '') +
     '<div id="acts" style="display:' + (st ? 'none' : 'block') + '">' +
     (st === '已接單' ? '' : '<button class="ok" onclick="go(\'已接單\')">✅ 接單</button>') +
-    (st === '已接單' ? '<button class="done" onclick="go(\'已完成\')">🧋 做好了（' + (v[2] === '自取' ? '通知客人可以來取' : '已出發外送') + '）</button>' : '') +
     '<button class="no" onclick="document.getElementById(\'rs\').style.display=\'block\';this.style.display=\'none\'">❌ 無法接單</button>' +
     '<div class="rs" id="rs" style="display:none"><p class="small">選原因，客人在網站上會看到：</p>' +
     REASONS.map(function (r) { return '<button onclick="go(\'無法接單\',\'' + r + '\')">' + r + '</button>'; }).join('') +
