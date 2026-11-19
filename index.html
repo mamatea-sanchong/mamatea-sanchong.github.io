@@ -424,7 +424,7 @@ function renderStatic(){
     [T('預購','Pre-order'), T('前一天 ' + p.cutoff + ' 前預購滿 ' + p.cups + ' 杯，整筆打 ' + zhZhe(p.rate) + '，網站下單自動計算。',
       'Order ' + p.cups + '+ cups by ' + p.cutoff + ' the day before and get ' + enOff(p.rate) + ' — applied automatically.')],
     [T('自取','Pickup'), T('不限杯數，選好時間到店直接取。', 'No minimum. Pick a time and collect at the shop.')],
-    [T('付款','Payment'), T((S.payment || '') + (S.paymentDelivery ? S.paymentDelivery : ''), (S.paymentEn || '') + ' ' + (S.paymentDeliveryEn || ''))]
+    [T('付款','Payment'), T((S.payment || '') + (S.paymentDelivery && !S.deliveryOff ? S.paymentDelivery : ''), (S.paymentEn || '') + (S.paymentDeliveryEn && !S.deliveryOff ? ' ' + S.paymentDeliveryEn : ''))]
   ].map(function(r){ return '<div class="rule"><b>' + r[0] + '</b><div>' + esc(r[1]) + '</div></div>'; }).join('');
 
   var today = d.getDay(), rows = '';
