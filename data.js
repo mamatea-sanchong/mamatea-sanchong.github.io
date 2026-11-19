@@ -67,10 +67,10 @@ window.SITE = {
   ],
 
   // 付款方式：顯示在訂單、確認畫面和完成頁
-  payment: '取餐時付現金。',
-  paymentEn: 'Pay in cash when you pick up.',
-  paymentDelivery: '外送到達時付現金。',
-  paymentDeliveryEn: 'Pay in cash on delivery.',
+  payment: '取餐時付款，可用現金、LINE Pay、悠遊付（TWQR）。',
+  paymentEn: 'Pay when you pick up: cash, LINE Pay or EasyWallet (TWQR).',
+  paymentDelivery: '外送到達時付款，可用現金、LINE Pay、悠遊付（TWQR）。',
+  paymentDeliveryEn: 'Pay on delivery: cash, LINE Pay or EasyWallet (TWQR).',
 
   preorder: { cups: 10, cutoff: '18:00', rate: 0.9 },              // 前一天 18:00 前預購滿 10 杯打 9 折
 
