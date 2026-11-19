@@ -911,7 +911,7 @@ function sendOrder(o){
   var fail = function(msg){
     btn.disabled = false; delete btn.dataset.busy; btn.textContent = T('送出訂單','Place order');
     showErr(T('訂單沒有送出：' + (msg || '網路不穩') + '。請再按一次，或打訂購專線 ' + S.phone + '。',
-      'Order not sent' + (msg ? ' (' + msg + ')' : '') + '. Please try again, or call ' + S.phone + '.'));
+      'Order not sent' + (msg ? ' (' + srv(msg) + ')' : '') + '. Please try again, or call ' + S.phone + '.'));
   };
   if (!S.orderEndpoint){ setTimeout(function(){ showDone(o, { ok:true, orderNo:'預覽-001', notified:false }); }, 400); return; }
   fetch(S.orderEndpoint, { method: 'POST', body: JSON.stringify(o) })
@@ -1033,6 +1033,30 @@ function stepsHtml(s, mode){
   return '<small style="margin-top:6px">' + names.map(function(n, i){ return (i <= k ? '●' : '○') + ' ' + n; }).join('　—　') + '</small>';
 }
 // x：{ mode, reason, no, t, canCancel }（t＝下單時拿到的查詢碼；canCancel＝後端是新版、支援取消）
+/* ---------- 店家／系統回覆的英文版 ---------- */
+var SRV_EN = {
+  '品項售完': 'An item is sold out', '這個時段太滿': 'This time slot is fully booked', '超出外送範圍': 'Outside our delivery area', '今天臨時公休': 'The shop is closed today',
+  '自取': 'Pickup', '外送': 'Delivery',
+  '訂單格式不正確': 'invalid order', '格式不正確': 'invalid order', '系統忙碌中': 'system busy', '沒有品項': 'no items',
+  '品項太多，請直接打電話訂購': 'too many items, please order by phone', '請填姓名和電話': 'please fill in your name and phone',
+  '電話格式不對': 'invalid phone number', '外送要填地址': 'delivery needs an address',
+  '塑膠袋金額有誤，請重新整理網頁再下單': 'bag fee mismatch, please reload the page and order again',
+  '金額計算有誤，請重新整理網頁再下單': 'price mismatch, please reload the page and order again',
+  '請選取餐日期和時間': 'please choose a date and time', '這個時段已經來不及了，請重新整理網頁再選時間': 'that time has passed, please reload and pick another time',
+  '查不到訂單': 'order not found', '只能在下單的手機上取消': 'you can only cancel on the phone you ordered with',
+  '店家已經處理這張單，要取消請打電話': 'the shop has already handled this order, please call to cancel'
+};
+function itemsEn(txt){
+  if (LANG !== 'en') return txt;
+  var nm = function(x){ return S.en[x] || x; };
+  return String(txt).split('\n').map(function(ln){
+    var m = ln.match(/^(.+?) ×(\d+)（(.*?)）(?:單價 \$(\d+))?/);
+    if (!m) return ln.replace(/^塑膠袋/, 'Plastic bag').replace(/^共 (\d+) 杯/, '$1 cups');
+    var opts = m[3].split('／').map(function(x){ return x.charAt(0)==='加' && S.en[x.slice(1)] ? '+ ' + S.en[x.slice(1)] : nm(x); }).join(' / ');
+    return nm(m[1]) + ' ×' + m[2] + ' (' + opts + ')' + (m[4] ? ' $' + m[4] + ' each' : '');
+  }).join('\n');
+}
+function srv(s){ s = String(s || ''); return LANG === 'en' ? (SRV_EN[s] || s) : s; }
 function statusHtml(s, at, x){
   x = x || {};
   var h;
@@ -1047,7 +1071,7 @@ function statusHtml(s, at, x){
   else if (s === '已完成') h = '<b>' + (x.mode === '外送' ? T('🛵 飲料已出發外送', '🛵 Your order is on the way') : T('🧋 飲料做好了，可以來取囉', '🧋 Your drinks are ready for pickup')) + '</b>' + (at ? esc(at) : '');
   else if (s === '已取消') h = '<b>' + T('🚫 訂單已取消', '🚫 Order cancelled') + '</b>' + (at ? esc(at) : '');
   else if (s === '無法接單') h = '<b>' + T('❌ 店家無法接這張單', '❌ The shop can\'t take this order') + '</b>' +
-    (x.reason ? T('原因：' + esc(x.reason) + '。', 'Reason: ' + esc(x.reason) + '. ') : '') + T('有問題請打 ' + esc(S.phone) + '。', 'Questions? Call ' + esc(S.phone) + '.');
+    (x.reason ? T('原因：' + esc(x.reason) + '。', 'Reason: ' + esc(srv(x.reason)) + '. ') : '') + T('有問題請打 ' + esc(S.phone) + '。', 'Questions? Call ' + esc(S.phone) + '.');
   else h = '<b>' + esc(s) + '</b>' + (at ? esc(at) : '');
   return h + stepsHtml(s, x.mode);
 }
@@ -1057,7 +1081,7 @@ document.addEventListener('click', function(e){
   b.disabled = true; b.textContent = T('取消中…', 'Cancelling…');
   fetch(S.orderEndpoint + '?a=cancel&no=' + encodeURIComponent(b.dataset.no) + '&t=' + encodeURIComponent(b.dataset.t)).then(function(r){ return r.json(); }).then(function(r){
     if (r && r.ok && r.status === '已取消'){ var box = b.closest('.status'); box.className = 'status no'; box.innerHTML = (box.querySelector('small') && box.querySelector('small').innerHTML.indexOf('ono') >= 0 ? '<small>' + box.querySelector('small').innerHTML + '</small>' : '') + statusHtml('已取消'); }
-    else { b.disabled = false; b.textContent = (r && r.error) || T('取消失敗，請打 ' + S.phone, 'Could not cancel — please call ' + S.phone); }
+    else { b.disabled = false; b.textContent = (r && r.error && srv(r.error)) || T('取消失敗，請打 ' + S.phone, 'Could not cancel — please call ' + S.phone); }
   }).catch(function(){ b.disabled = false; b.textContent = T('網路不穩，請再按一次', 'Network problem — try again'); });
 });
 function loadOrders(){ try { return JSON.parse(localStorage.getItem('myOrders') || '[]'); } catch(e){ return []; } }
@@ -1097,7 +1121,7 @@ $('lkForm').addEventListener('submit', function(e){
     if (!st || !st.ok || !(st.orders || []).length) return err(T('查不到訂單，請確認訂單編號或電話；有問題請打 ' + esc(S.phone) + '。', 'No order found. Please check the number, or call ' + esc(S.phone) + '.'));
     out.innerHTML = st.orders.map(function(x){
       var day = String(x.day || '').replace(/^\d{4}[\/-]/, '').replace('-', '/');
-      return '<div class="status ' + stClass(x.status) + '"><small>' + T('訂單 ', 'Order ') + onoLink(x.orderNo) + (x.time ? '｜' + esc(x.mode || '') + ' ' + esc(day) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(x.status, x.at, x) + reoBtn(x.items) + '</div>';
+      return '<div class="status ' + stClass(x.status) + '"><small>' + T('訂單 ', 'Order ') + onoLink(x.orderNo) + (x.time ? '｜' + esc(srv(x.mode)) + ' ' + esc(day) + ' ' + esc(x.time) : '') + '</small>' + statusHtml(x.status, x.at, x) + reoBtn(x.items) + '</div>';
     }).join('');
   }).catch(function(){ $('lkBtn').disabled = false; err(T('網路不穩，請再試一次。', 'Network problem — please try again.')); });
 });
@@ -1126,7 +1150,7 @@ function openOrder(no){
       '<div class="od-info">' + T(esc(x.mode) + '｜' + esc(day) + ' ' + esc(x.time), (isPick ? 'Pickup' : 'Delivery') + ' | ' + esc(day) + ' ' + esc(x.time)) +
       (!isPick && x.dist ? T('（' + esc(x.dist) + '）', '') : '') + '</div>' +
       ((!x.items && (mine = loadOrders().filter(function(y){ return y.no === no && y.items; })[0])) ? (x.items = mine.items, x.cups = mine.cups, x.total = mine.total, '') : '') +
-      (x.items ? '<div class="od-items">' + esc(x.items) + '</div>' +
+      (x.items ? '<div class="od-items">' + esc(itemsEn(x.items)) + '</div>' +
         '<div class="od-info"><b>' + T('共 ' + esc(x.cups) + ' 杯，合計 $' + esc(x.total), esc(x.cups) + ' cups, total $' + esc(x.total)) + '</b></div>' + reoBtn(x.items)
         : '<p class="hint">' + T('品項明細暫時無法顯示（店家系統更新中），訂單已經存在店裡，不影響取餐。', 'Item details are temporarily unavailable while we update our system. Your order is safely recorded.') + '</p>') +
       '<p class="hint">' + T('為了保護個資，這裡不顯示姓名、電話和地址。要改單請打 ' + esc(S.phone) + '。', 'Name, phone and address are hidden for privacy. To change your order, call ' + esc(S.phone) + '.') + '</p>';
