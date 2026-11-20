@@ -206,6 +206,9 @@ section .sec-h span{color:var(--ac,var(--muted))}
 .ono{color:inherit;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .od-info{font-size:15px;margin:10px 0}
 .od-items{white-space:pre-wrap;font:inherit;font-size:14px;line-height:1.7;background:var(--bg);border:1px solid var(--rule);padding:12px;border-radius:6px;margin:10px 0}
+.done .remind{background:var(--amber);color:var(--amber-ink);text-align:left;padding:14px 16px;margin:14px 0 4px;border-radius:2px;font-size:16px;line-height:1.6}
+.done .remind b{font-weight:700}
+.done .remind .t{display:block;font-size:19px;letter-spacing:.04em;margin-bottom:2px}
 .done .when{font-size:18px;margin-block:16px 4px}
 .done .pay{text-align:left;font-size:14px}
 .done details.rcpt{text-align:left;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin-block:14px}
@@ -1003,6 +1006,10 @@ function showDone(o, r){
   lsSet('lastOrder', { at: Date.now(), lines: o.items.map(function(l){ return { name: l.name, opts: l.opts, qty: l.qty }; }) });
   $('bar').hidden = true;
   $('app').innerHTML = '<div class="done"><div class="lbl">' + T('訂單編號','Order number') + '</div><div class="no">' + esc(r.orderNo) + '</div>' +
+    // 醒目提醒：客人常常不會注意小字，所以放在編號正下方、用底色框和粗體
+    (r.token ? '<div class="remind"><b class="t">' + T('📌 請記得回來看「接單狀態」', '📌 Remember to check back for the status') + '</b>' +
+      T('<b>請截圖保存這個畫面。</b>店家按下接單後，這裡會顯示「已接單」。之後也可以到網站「查訂單」，輸入訂單編號 <b>' + esc(r.orderNo) + '</b> 或電話查詢。',
+        '<b>Please take a screenshot.</b> Once we accept your order, this page will show "Accepted". You can also check anytime under "Order status" with order number <b>' + esc(r.orderNo) + '</b> or your phone number.') + '</div>' : '') +
     (r.notified && !r.token
       ? '<p>' + T('店裡已經收到訂單。' + (o.mode==='自取' ? '請在 ' + esc(o.dayLabel) + ' ' + esc(o.time) + ' 到店取餐。' : '會照時間送到。') + '要改單請打 ' + esc(S.phone) + '。',
           'We\'ve received your order. ' + (o.mode==='自取' ? 'Please pick it up ' + esc(o.dayLabelEn) + ' ' + esc(o.time) + '.' : 'We\'ll deliver it on time.') + ' To make changes, call ' + esc(S.phone) + '.') + '</p>'
@@ -1014,8 +1021,7 @@ function showDone(o, r){
         '<p class="hint">' + T('要改單請打 ' + esc(S.phone) + '。', 'To make changes, call ' + esc(S.phone) + '.') + '</p>'
       : '<p>' + T('還差一步：請按下面的按鈕，用 LINE 把訂單傳給店長，或直接打 ' + esc(S.phone) + '。', 'One more step: tap the button below to send your order to us on LINE, or call ' + esc(S.phone) + '.') + '</p>' +
         '<a class="btn line block" href="https://line.me/R/msg/text/?' + encodeURIComponent(text) + '" target="_blank" rel="noopener">' + T('用 LINE 傳訂單給店長','Send order on LINE') + '</a>') +
-    (r.token ? '<p class="hint">' + T('之後可以在網站「查訂單」輸入訂單編號或電話，查詢狀態。', 'You can check the status anytime under "Order status" with your order number or phone number.') + '</p>' : '') +
-    '<p class="hint">' + T('建議截圖保存這個畫面，訂單編號查詢時會用到。', 'Tip: take a screenshot to keep your order number.') + '</p>' +
+    (r.token ? '' : '<p class="hint">' + T('建議截圖保存這個畫面，訂單編號查詢時會用到。', 'Tip: take a screenshot to keep your order number.') + '</p>') +
     '<p class="pay">' + T('付款：', 'Payment: ') + esc(payText(o.mode)) + '</p>' +
     '<details class="rcpt"' + (r.notified ? '' : ' open') + '><summary>' + T('看訂單明細', 'Order details') + '（' + o.items.reduce(function(n,l){ return n + l.qty; }, 0) + T(' 杯，$', ' cups, $') + o.total + '）</summary>' +
       '<div style="margin-top:12px">' + receiptHtml(o, r.orderNo) + '</div></details>' +
