@@ -24,7 +24,7 @@ window.SITE = {
   // 要馬上開放就改成 ''；要延後就改日期。
   orderingOpensOn: '',
   // 暫停外送：true＝網站只能選到店自取；要恢復外送改成 false
-  deliveryOff: true,
+  deliveryOff: false,
 
   orderEndpoint: 'https://script.google.com/macros/s/AKfycbzk2CTeRzCQkpwKTYddIx7swi7cGdcXuW6FDVyTdTAJFWwbbKmS1uHj9znbSvXQ5G1c/exec',
 
@@ -45,8 +45,10 @@ window.SITE = {
       en: 'Anniversary, Dec 21–Feb 3: pure tea BOGO (Dec 21–Jan 2), fresh milk tea 2nd cup half price (Jan 4–16), pre-order 10+ cups 15% off (Jan 18–29), pure tea BOGO again (Jan 30–Feb 3).' },
     { date: '2026-11-24', until: '2026-12-19', text: '週一、四第二杯半價（11/26–12/19）：同一筆訂單每兩杯，較便宜的那杯半價。',
       en: 'Mon & Thu, 2nd cup half price (Nov 26–Dec 19): in each order, every second (cheaper) cup is half price.' },
-    { date: '2026-11-19', text: '開放線上訂購：到店自取可以在網站上下單（外送暫停中）。',
-      en: 'Online ordering is open for pickup (delivery is paused for now).' },
+    { date: '2026-11-23', text: '網站外送開放：2 公里內滿 $300 外送。週一到週五外送到 14:30，週六照營業時間；其他時間請提前來電 0987-590818 安排。',
+      en: 'Delivery is now available online: $300 minimum within 2 km. Mon–Fri until 14:30, Saturday during regular hours. For other times, please call 0987-590818.' },
+    { date: '2026-11-19', text: '開放線上訂購：到店自取可以在網站上下單。',
+      en: 'Online ordering is open for pickup.' },
     { date: '2026-11-12', text: '前一天 18:00 前預購滿 10 杯，整筆打 9 折。',
       en: 'Order 10+ cups by 6 PM the day before and get 10% off the whole order.' },
   ],
