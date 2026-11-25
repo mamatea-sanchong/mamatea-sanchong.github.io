@@ -365,6 +365,7 @@ section .sec-h h2::before{width:.78em;height:.78em;border-radius:0;vertical-alig
     <table class="hours" id="hours"></table>
     <div class="addr">
       <div id="addrTxt"></div>
+      <div id="addrTel" style="white-space:nowrap"></div>
       <div><a id="mapLink" href="#" target="_blank" rel="noopener" data-en="Open in Google Maps →">在 Google 地圖開啟 →</a></div>
     </div>
   </section>
@@ -499,7 +500,8 @@ function renderStatic(){
     rows += '<tr' + (i===today?' class="today"':'') + '><td>' + T('星期' + WD[i], WDE[i]) + (i===today ? ' <span class="tag ' + (on ? 'on' : '') + '">' + (on ? T('營業中','Open') : !h ? T('今天公休','Closed today') : now < toMin(h[0]) ? T('還沒開門','Not open yet') : T('已打烊','Closed now')) + '</span>' : '') + '</td><td>' + (hh ? hh[0] + ' – ' + hh[1] : T('公休','Closed')) + '</td></tr>';
   });
   $('hours').innerHTML = rows;
-  $('addrTxt').textContent = T(S.address, S.addressEn || S.address) + '　' + S.phone;
+  $('addrTxt').textContent = T(S.address, S.addressEn || S.address);
+  $('addrTel').textContent = S.phone;
   $('mapLink').href = S.mapUrl;
   $('foot').textContent = T(S.storeName + ' ' + S.branch, (S.storeNameEn || S.storeName) + ' · ' + (S.branchEn || S.branch));
   $('demoNote').hidden = !!S.orderEndpoint;
