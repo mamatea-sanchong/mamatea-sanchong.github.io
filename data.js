@@ -43,8 +43,8 @@ window.SITE = {
       en: 'Closed on Jan 1 (Fri). Open as usual on Jan 2.' },
     { date: '2026-12-19', until: '2027-01-02', text: '週年慶 12/21–2/3：12/21–1/2 原茶買一送一；1/4–1/16 鮮奶茶第二杯半價；1/18–1/29 預購 10 杯 85 折；1/30–2/3 原茶買一送一。',
       en: 'Anniversary, Dec 21–Feb 3: pure tea BOGO (Dec 21–Jan 2), fresh milk tea 2nd cup half price (Jan 4–16), pre-order 10+ cups 15% off (Jan 18–29), pure tea BOGO again (Jan 30–Feb 3).' },
-    { date: '2026-11-24', until: '2026-12-19', text: '週一、四第二杯半價（11/26–12/19）：同一筆訂單每兩杯，較便宜的那杯半價。',
-      en: 'Mon & Thu, 2nd cup half price (Nov 26–Dec 19): in each order, every second (cheaper) cup is half price.' },
+    { date: '2026-11-24', until: '2026-12-19', text: '週一、四第二杯半價（11/26–12/19）：可混搭、不限杯數，同一筆訂單裡最便宜的一半杯數半價。',
+      en: 'Mon & Thu, 2nd cup half price (Nov 26–Dec 19): mix and match, no limit — the cheapest half of the cups in your order are half price.' },
     { date: '2026-11-23', text: '網站外送開放：2 公里內滿 $300 外送。週一到週五外送到 14:30，週六照營業時間；其他時間請提前來電 0987-590818 安排。',
       en: 'Delivery is now available online: $300 minimum within 2 km. Mon–Fri until 14:30, Saturday during regular hours. For other times, please call 0987-590818.' },
     { date: '2026-11-19', text: '開放線上訂購：到店自取可以在網站上下單。',
@@ -80,7 +80,7 @@ window.SITE = {
   preorder: { cups: 10, cutoff: '18:00', rate: 0.9 },              // 前一天 18:00 前預購滿 10 杯打 9 折
 
   // 促銷活動：日期到了自動上架、過期自動下架。整筆優惠（第二杯半價、滿額折、優惠碼、預購 9 折）擇一，自動選最划算的
-  //   second-half 第二杯半價（每兩杯，較便宜的那杯半價）
+  //   second-half 第二杯半價（N 杯裡最便宜的一半杯數半價，例：4 杯 → 最便宜的 2 杯半價；單數杯多的那杯原價）
   //   bogo        買一送一（每兩杯，較便宜的那杯免費）
   //               second-half 和 bogo 都可加 cat: '原茶' 限定品類、max: 5 每單最多幾杯
   //   item-price  指定品項特價，例：items: {'紅玉鮮奶茶': 60}；或整類折價，例：cat: '鮮奶茶', off: 10
@@ -90,8 +90,8 @@ window.SITE = {
   //   days 可限定星期幾（0=週日），start / end 是開始和結束日期（含當天）
   promos: [
     { title: '週一、週四 第二杯半價', type: 'second-half', days: [1, 4], start: '2026-11-26', end: '2026-12-19',
-      note: '同一筆訂單每兩杯，較便宜的那杯半價。',
-      en: { title: 'Mon & Thu: 2nd cup half price', note: 'In each order, every second (cheaper) cup is half price.' } },
+      note: '可混搭，不限杯數：同一筆訂單裡最便宜的一半杯數半價（例：4 杯，最便宜的 2 杯半價）。',
+      en: { title: 'Mon & Thu: 2nd cup half price', note: 'Mix and match, no limit: the cheapest half of the cups in your order are half price (e.g. 4 cups → the 2 cheapest are half price).' } },
     { title: '鮮奶茶雙週 每杯折 10 元', type: 'item-price', cat: '鮮奶茶', off: 10, start: '2026-10-28', end: '2026-11-10',
       note: '鮮奶茶全品項，紅玉鮮奶茶 60、桂妃鮮奶茶 55。',
       en: { title: 'Fresh milk tea: $10 off each', note: 'All fresh milk teas.' } },
@@ -100,8 +100,8 @@ window.SITE = {
       note: '原茶可混搭，每兩杯送價格較低的那杯，不限杯數。',
       en: { title: 'Anniversary: Pure tea, buy one get one free', note: 'Mix any pure teas. In every two cups, the cheaper one is free. No limit.' } },
     { title: '週年慶｜鮮奶茶第二杯半價', type: 'second-half', cat: '鮮奶茶', start: '2027-01-04', end: '2027-01-16',
-      note: '鮮奶茶可混搭，每兩杯較便宜的那杯半價，不限杯數。',
-      en: { title: 'Anniversary: Fresh milk tea, 2nd cup half price', note: 'Mix any fresh milk teas. In every two cups, the cheaper one is half price. No limit.' } },
+      note: '鮮奶茶可混搭，不限杯數，最便宜的一半杯數半價。',
+      en: { title: 'Anniversary: Fresh milk tea, 2nd cup half price', note: 'Mix any fresh milk teas, no limit. The cheapest half of the cups are half price.' } },
     { title: '週年慶｜預購 10 杯 85 折', type: 'preorder', rate: 0.85, start: '2027-01-18', end: '2027-01-29',
       note: '前一天 18:00 前預購滿 10 杯，整筆 85 折（平常 9 折）。',
       en: { title: 'Anniversary: Pre-order 10+ cups, 15% off', note: 'Order 10+ cups by 6 PM the day before: 15% off the whole order (usually 10%).' } },
