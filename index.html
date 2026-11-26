@@ -779,7 +779,8 @@ function slotsFor(ds){
   var d = new Date(ds + 'T00:00:00'), h = S.hours[d.getDay()];
   if (!h) return [];
   // 最晚的取餐／外送時間：店員在店裡到幾點（staffUntil，例：週一、四 14:30），沒寫就是打烊時間
-  var start = toMin(h[0]) + 30, end = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
+  var off = (S.firstSlotAfterOpen || {})[d.getDay()];
+  var start = toMin(h[0]) + (off != null ? off : 30), end = toMin((S.staffUntil || {})[d.getDay()] || h[1]);
   if (mode() === '團購') end = Math.min(end, toMin(S.groupLatest));
   var dLate = (S.deliveryLatest || {})[d.getDay()];
   if (mode() === '外送' && dLate) end = Math.min(end, toMin(dLate));   // 週一到五外送只到 14:30
