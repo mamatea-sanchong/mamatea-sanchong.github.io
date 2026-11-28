@@ -438,7 +438,7 @@ function tick() {
 /**
  * 店裡 POS 主機上的「自動列印」小程式每幾秒來問一次：有沒有還沒印的新訂單？
  * 用「今日訂單」頁面同一把鑰匙（k），沒有鑰匙看不到。
- * 只給最近 12 小時內下的、還沒印過、沒被取消／拒單的訂單（第一次裝好時不會把舊單全部印出來）。
+ * 只給最近 12 小時內下的、已經有人按「接單」、還沒印過的訂單（第一次裝好時不會把舊單全部印出來）。
  */
 var PRINT_WITHIN_HOURS = 12;
 function printQueue_(key) {
@@ -450,7 +450,7 @@ function printQueue_(key) {
   rows.forEach(function (v, i) {
     var placed = raw[i][1] instanceof Date ? raw[i][1].getTime() : 0;
     if (!v[0] || String(v[COL_PRINTED - 1]).trim() || !placed || Date.now() - placed > PRINT_WITHIN_HOURS * 3600000) return;
-    if (['無法接單', '已取消'].indexOf(String(v[COL_STATUS - 1]).trim()) >= 0) return;
+    if (['已接單', '已完成'].indexOf(String(v[COL_STATUS - 1]).trim()) < 0) return;   // 店員按了「接單」才印
     out.push({ orderNo: v[0], placed: v[1], mode: v[2], day: v[3], time: v[4], name: v[5], tel: v[6], company: v[7], addr: v[8],
                dist: v[9], items: v[10], cups: v[11], total: v[12], note: v[COL_NOTE - 1], promo: v[COL_PROMO - 1] });
   });
