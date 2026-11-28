@@ -26,8 +26,8 @@ var MIN_LEAD = 15;   // 後端最後一道關：取餐時間至少要比現在�
 
 var SHEET_NAME = '訂單';
 var HEADERS = ['訂單編號', '下單時間', '取餐方式', '日期', '時間', '姓名', '電話', '公司', '地址', '距離',
-               '品項', '杯數', '金額', '備註', 'LINE 通知', '處理狀態', '接單時間', '查詢碼', '優惠', '原因'];
-var COL_NOTE = 14, COL_NOTIFY = 15, COL_STATUS = 16, COL_TIME = 17, COL_TOKEN = 18, COL_PROMO = 19, COL_REASON = 20;
+               '品項', '杯數', '金額', '備註', 'LINE 通知', '處理狀態', '接單時間', '查詢碼', '優惠', '原因', '列印'];
+var COL_NOTE = 14, COL_NOTIFY = 15, COL_STATUS = 16, COL_TIME = 17, COL_TOKEN = 18, COL_PROMO = 19, COL_REASON = 20, COL_PRINTED = 21;
 var NCOL = HEADERS.length;
 var STATUSES = ['已接單', '無法接單', '已完成', '已取消'];
 var REASONS = ['品項售完', '這個時段太滿', '超出外送範圍', '今天臨時公休'];
@@ -44,6 +44,8 @@ function doGet(e) {
   if (q.a === 'set') return quickSet_(q.no, q.k, q.s);
   if (q.a === 'today') return todayPage_(q.d, q.k);
   if (q.a === 'cancel') return json_(customerCancel(q.no, q.t));
+  if (q.a === 'print') return json_(printQueue_(q.k));
+  if (q.a === 'printed') return json_(markPrinted_(q.k, q.no));
   return json_({ ok: true, service: '神農店訂單' });
 }
 
@@ -78,7 +80,7 @@ function submitOrder(o) {
     var promo = (o.discount ? (o.promo || '優惠') + ' −' + o.discount + '　' : '') + (o.code ? '碼:' + o.code + '　' : '') + (Number(o.bags) > 0 ? '塑膠袋×' + Number(o.bags) : '');
 
     sheet.appendRow([orderNo, now, o.mode, o.day, o.time, o.name, "'" + o.tel, o.company, o.addr, o.dist,
-                     itemsTxt, cups, o.total, o.note || '', notified ? '已通知' : '未通知', '', '', token, promo.trim(), '']);
+                     itemsTxt, cups, o.total, o.note || '', notified ? '已通知' : '未通知', '', '', token, promo.trim(), '', '']);
     return { ok: true, orderNo: orderNo, notified: notified, token: token };
   } finally {
     lock.releaseLock();
@@ -431,6 +433,37 @@ function tick() {
       footer: { type: 'box', layout: 'vertical', contents: [{ type: 'button', style: 'primary', color: '#3f5b74', action: { type: 'uri', label: '🧋 做好了', uri: setUrl } }] } } }]);
   });
   p.setProperty('READIED', readied.filter(String).slice(-60).join(','));
+}
+
+/**
+ * 店裡 POS 主機上的「自動列印」小程式每幾秒來問一次：有沒有還沒印的新訂單？
+ * 用「今日訂單」頁面同一把鑰匙（k），沒有鑰匙看不到。
+ * 只給最近 12 小時內下的、還沒印過、沒被取消／拒單的訂單（第一次裝好時不會把舊單全部印出來）。
+ */
+var PRINT_WITHIN_HOURS = 12;
+function printQueue_(key) {
+  if (String(key || '') !== staffKey_('today')) return { ok: false, error: '鑰匙不對' };
+  var sheet = getSheet_(), last = sheet.getLastRow();
+  if (last < 2) return { ok: true, orders: [] };
+  var first = Math.max(2, last - 99), rng = sheet.getRange(first, 1, last - first + 1, NCOL);
+  var rows = rng.getDisplayValues(), raw = rng.getValues(), out = [];
+  rows.forEach(function (v, i) {
+    var placed = raw[i][1] instanceof Date ? raw[i][1].getTime() : 0;
+    if (!v[0] || String(v[COL_PRINTED - 1]).trim() || !placed || Date.now() - placed > PRINT_WITHIN_HOURS * 3600000) return;
+    if (['無法接單', '已取消'].indexOf(String(v[COL_STATUS - 1]).trim()) >= 0) return;
+    out.push({ orderNo: v[0], placed: v[1], mode: v[2], day: v[3], time: v[4], name: v[5], tel: v[6], company: v[7], addr: v[8],
+               dist: v[9], items: v[10], cups: v[11], total: v[12], note: v[COL_NOTE - 1], promo: v[COL_PROMO - 1] });
+  });
+  return { ok: true, orders: out.slice(0, 20) };
+}
+
+/** 小程式印好之後回報，「列印」欄寫上時間，就不會再印第二次 */
+function markPrinted_(key, no) {
+  if (String(key || '') !== staffKey_('today')) return { ok: false, error: '鑰匙不對' };
+  var sheet = getSheet_(), row = findRow_(sheet, no);
+  if (!row) return { ok: false, error: '找不到訂單' };
+  sheet.getRange(row, COL_PRINTED).setValue(Utilities.formatDate(new Date(), TZ, 'MM/dd HH:mm:ss'));
+  return { ok: true };
 }
 
 /**
